@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+
+  <h3 class="mb-1">Шаблоны сообщений для Telegram-бота</h3>
+  <div class="text-muted small mb-3">
+    Скрытые репетиторы могут отправлять родителям только фразы из этого списка.
+  </div>
+
+  {% if not bot_configured %}
+    <div class="alert alert-warning">
+      Бот не настроен: не задана переменная окружения <code>TELEGRAM_BOT_TOKEN</code>.
+      Сообщения не будут отправляться, пока бот не настроен.
+    </div>
+  {% else %}
+    <div class="alert alert-light border">
+      Бот настроен{% if bot_username %} (@{{ bot_username }}){% endif %}. Родители привязывают
+      аккаунт на странице «Telegram» в своём кабинете.
+    </div>
+  {% endif %}
+
+  <div class="card rounded-4 shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <form method="post" class="d-flex gap-2 flex-wrap">
+                {{ csrf_field() }}
+        <input type="text" name="text" class="form-control" style="max-width: 480px;"
+               maxlength="300" placeholder="Например: Ребёнок ушёл раньше времени." required>
+        <button type="submit" class="btn btn-primary">Добавить фразу</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card rounded-4 shadow-sm border-0">
+    <div class="card-body">
+      {% if templates %}
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Фраза</th>
+                <th>Статус</th>
+                <th style="width: 1%; white-space: nowrap;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for template in templates %}
+                <tr>
+                  <td>{{ template.text }}</td>
+                  <td>
+                    {% if template.is_active %}
+                      <span class="badge bg-success">Активна</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Отключена</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <form method="post" action="{{ url_for('admin_toggle_message_template', template_id=template.id) }}">
+                {{ csrf_field() }}
+                      <button type="submit" class="btn btn-sm btn-outline-secondary">
+                        {% if template.is_active %}Отключить{% else %}Включить{% endif %}
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-light border mb-0">Фраз пока нет.</div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

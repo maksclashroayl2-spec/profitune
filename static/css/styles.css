@@ -1,0 +1,976 @@
+:root {
+    --bg: #f6f7fb;
+    --surface: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e7e9f0;
+    --accent: #4f46e5;
+    --accent-2: #7c3aed;
+    --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    --shadow-sm: 0 6px 16px rgba(15, 23, 42, 0.06);
+    --radius: 14px;
+}
+
+/* ===== ОСНОВА ===== */
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    min-height: 100vh;
+    color: var(--text);
+    font-family: "Segoe UI", Arial, sans-serif;
+
+    background-color: #f8f4ee;
+
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.30),
+            rgba(255, 255, 255, 0.30)
+        ),
+        url("../img/background.png");
+
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
+}
+
+/* ВАЖНО: main не должен иметь z-index.
+   Bootstrap-модалки лежат внутри main, а backdrop создаётся в body.
+   Если у main стоит z-index, окно модалки оказывается под затемнением. */
+main.container {
+    position: relative;
+}
+
+/* ===== ШАПКА ===== */
+
+.navbar {
+    background: rgba(17, 24, 39, 0.96) !important;
+    backdrop-filter: blur(8px);
+    min-height: 96px;
+    padding: 0;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+}
+
+.navbar-brand.logo-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 96px;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.navbar .nav-link {
+    font-weight: 500;
+}
+
+.navbar .navbar-text {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ===== ОБЩИЕ КАРТОЧКИ ===== */
+
+.card {
+    border: 1px solid rgba(231, 233, 240, 0.95);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(10px);
+}
+
+.card .card-body {
+    padding: 1.1rem;
+}
+
+.bg-light {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1px solid rgba(231, 233, 240, 0.95);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+}
+
+/* ===== КНОПКИ ===== */
+
+.btn {
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #7c3aed, #9333ea) !important;
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 22px rgba(124, 58, 237, 0.22);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #6d28d9, #7e22ce) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 13px 28px rgba(124, 58, 237, 0.30);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    border: none;
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #15803d, #16a34a);
+    color: #ffffff;
+}
+
+.btn-outline-secondary {
+    border-color: #c7cbe0 !important;
+    color: var(--text) !important;
+    background: rgba(255, 255, 255, 0.75) !important;
+}
+
+.btn-outline-secondary:hover {
+    background: #eef0ff !important;
+    border-color: #c7cbe0 !important;
+}
+
+.btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.75);
+    color: #ffffff !important;
+}
+
+.btn-outline-light:hover {
+    background: #ffffff;
+    color: #111827 !important;
+}
+
+/* ===== БЕЙДЖИ ===== */
+
+.badge.text-bg-success {
+    background: rgba(22, 163, 74, 0.12) !important;
+    color: #15803d !important;
+    border: 1px solid rgba(22, 163, 74, 0.25);
+}
+
+/* ===== ТЕКСТ ===== */
+
+.clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ===== АВАТАРЫ ===== */
+
+.tutor-avatar {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tutor-avatar-large {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #e5e7eb;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== ЧИТАЕМОСТЬ БЛОКОВ НА ФОТО-ФОНЕ ===== */
+
+.ps-hero-left,
+.ps-subject,
+.ps-benefit-panel,
+.ps-path-item,
+.admin-section,
+.admin-hero,
+.edit-card {
+    background-color: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(231, 233, 240, 0.95);
+}
+
+.ps-hero-card {
+    background: rgba(15, 23, 42, 0.96) !important;
+}
+
+.ps-benefit-panel.dark {
+    background: rgba(15, 23, 42, 0.94) !important;
+    color: #ffffff;
+}
+
+.ps-benefit-panel.dark h1,
+.ps-benefit-panel.dark h2,
+.ps-benefit-panel.dark h3,
+.ps-benefit-panel.dark h4,
+.ps-benefit-panel.dark h5,
+.ps-benefit-panel.dark h6 {
+    color: #ffffff !important;
+}
+
+.ps-benefit-panel.dark p,
+.ps-benefit-panel.dark li {
+    color: #e5e7eb !important;
+}
+
+/* Читаемость заголовков и описаний */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #0f172a;
+}
+
+p,
+li,
+.ps-section-text,
+.ps-path-text {
+    color: #475569;
+}
+
+/* Если на фоне текст всё равно плохо читается */
+.ps-section-head,
+.ps-section-title,
+.ps-section-text {
+    position: relative;
+    z-index: 2;
+}
+
+.ps-section-head {
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(231, 233, 240, 0.75);
+    border-radius: 22px;
+    padding: 18px 22px;
+    backdrop-filter: blur(10px);
+}
+
+/* ===== ПОДВАЛ ===== */
+
+.site-footer {
+    background: rgba(17, 24, 39, 0.97);
+    color: rgba(255, 255, 255, 0.82);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 50px;
+    backdrop-filter: blur(10px);
+}
+
+.footer-title {
+    color: #ffffff;
+}
+
+.footer-text {
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.footer-links {
+    padding-left: 18px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.78) !important;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.footer-links a:hover {
+    color: #ffffff !important;
+    text-decoration: none;
+    transform: translateX(3px);
+}
+
+.footer-links a:visited {
+    color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.footer-links a:active {
+    color: #ffffff !important;
+}
+
+.footer-line {
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.footer-bottom {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+/* ===== СТРАНИЦА РЕДАКТИРОВАНИЯ В АДМИНКЕ ===== */
+
+.admin-edit-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 70px;
+}
+
+.admin-edit-header {
+    margin-bottom: 28px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(231, 233, 240, 0.95);
+    border-radius: 24px;
+    padding: 24px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+}
+
+.admin-edit-header h1 {
+    margin: 12px 0 8px;
+    font-size: 36px;
+    color: #1f2937;
+}
+
+.admin-edit-header p {
+    color: #6b7280;
+    font-size: 16px;
+}
+
+.back-link {
+    color: #7c3aed;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.admin-edit-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+}
+
+.edit-card {
+    border-radius: 22px;
+    padding: 28px;
+    box-shadow: 0 14px 35px rgba(31, 41, 55, 0.08);
+}
+
+.edit-card h2 {
+    margin-bottom: 22px;
+    font-size: 22px;
+    color: #4c1d95;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.admin-edit-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.admin-edit-form input,
+.admin-edit-form textarea,
+.admin-edit-form select,
+.avatar-select {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 14px;
+    padding: 13px 15px;
+    font-size: 15px;
+    background: #ffffff;
+    outline: none;
+    transition: 0.2s;
+}
+
+.admin-edit-form input:focus,
+.admin-edit-form textarea:focus,
+.admin-edit-form select:focus,
+.avatar-select:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.14);
+}
+
+.admin-edit-form textarea {
+    resize: vertical;
+    min-height: 180px;
+}
+
+.avatar-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 28px;
+    align-items: center;
+}
+
+.small-title {
+    margin-bottom: 10px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.admin-avatar-preview {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 24px;
+    border: 4px solid #ede9fe;
+    box-shadow: 0 10px 25px rgba(31, 41, 55, 0.16);
+}
+
+.upload-box {
+    min-height: 150px;
+    border: 2px dashed #a78bfa;
+    border-radius: 22px;
+    background: #faf5ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+.upload-box span {
+    font-size: 18px;
+    color: #6d28d9;
+}
+
+.upload-box small {
+    color: #6b7280;
+}
+
+.upload-box input {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding-left: 0;
+}
+
+.admin-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.btn-secondary {
+    border: none;
+    border-radius: 14px;
+    padding: 13px 22px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 15px;
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+/* ===== АДАПТИВ ===== */
+
+@media (max-width: 768px) {
+    body {
+        background-attachment: scroll;
+        background-position: center top;
+    }
+
+    .navbar {
+        min-height: auto;
+        padding: 10px 0;
+    }
+
+    .navbar-brand.logo-link {
+        height: auto;
+    }
+
+    .form-grid,
+    .avatar-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-edit-header h1 {
+        font-size: 28px;
+    }
+
+    .admin-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        text-align: center;
+    }
+}
+/* =========================================================
+   ШАПКА И ПОДВАЛ PROFISCHOOL В СТИЛЕ САЙТА
+   ========================================================= */
+
+/* ===== ШАПКА ===== */
+
+.navbar {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.94),
+            rgba(245, 243, 255, 0.92)
+        ) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(16px);
+}
+
+.navbar .container {
+    min-height: 96px;
+}
+
+.navbar-brand.logo-link {
+    height: 96px;
+}
+
+.navbar .nav-link {
+    color: #334155 !important;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 9px 14px !important;
+    transition: 0.18s ease;
+}
+
+.navbar .nav-link:hover {
+    color: #7c3aed !important;
+    background: rgba(124, 58, 237, 0.08);
+}
+
+.navbar .navbar-text {
+    color: #475569 !important;
+    font-weight: 700;
+}
+
+.navbar .btn-outline-light {
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #7c3aed, #9333ea);
+    box-shadow: 0 10px 22px rgba(124, 58, 237, 0.24);
+    font-weight: 800;
+    padding: 8px 15px;
+}
+
+.navbar .btn-outline-light:hover {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #6d28d9, #7e22ce);
+    transform: translateY(-1px);
+}
+
+.navbar .btn-primary {
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #7c3aed, #9333ea) !important;
+    box-shadow: 0 10px 22px rgba(124, 58, 237, 0.24);
+    font-weight: 800;
+}
+
+.navbar .btn-primary:hover {
+    background: linear-gradient(135deg, #6d28d9, #7e22ce) !important;
+    transform: translateY(-1px);
+}
+
+.navbar-toggler {
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    background: rgba(124, 58, 237, 0.08);
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.14);
+}
+
+.navbar-toggler-icon {
+    filter: invert(24%) sepia(69%) saturate(2551%) hue-rotate(252deg) brightness(93%) contrast(95%);
+}
+
+/* ===== ПОДВАЛ ===== */
+
+.site-footer {
+    background:
+        radial-gradient(circle at 12% 18%, rgba(124, 58, 237, 0.12), transparent 28%),
+        radial-gradient(circle at 88% 82%, rgba(59, 130, 246, 0.10), transparent 30%),
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.95),
+            rgba(245, 243, 255, 0.94)
+        ) !important;
+    color: #475569 !important;
+    border-top: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 -18px 46px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(16px);
+}
+
+.footer-title {
+    color: #0f172a !important;
+    font-weight: 800;
+}
+
+.footer-text {
+    color: #475569 !important;
+    line-height: 1.65;
+}
+
+.footer-links {
+    padding-left: 18px;
+}
+
+.footer-links li {
+    color: #94a3b8;
+    margin-bottom: 5px;
+}
+
+.footer-links a,
+.footer-links a:visited {
+    color: #475569 !important;
+    text-decoration: none;
+    transition: 0.18s ease;
+}
+
+.footer-links a:hover {
+    color: #7c3aed !important;
+    text-decoration: none;
+    padding-left: 3px;
+}
+
+.footer-line {
+    border-color: rgba(203, 213, 225, 0.9) !important;
+}
+
+.footer-bottom {
+    color: #64748b !important;
+}
+
+/* ===== АДАПТИВ ДЛЯ МОБИЛЬНОГО МЕНЮ ===== */
+
+@media (max-width: 992px) {
+    .navbar .container {
+        min-height: auto;
+    }
+
+    .navbar-brand.logo-link {
+        height: auto;
+    }
+
+    .navbar-collapse {
+        margin-top: 12px;
+        padding: 14px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+    }
+
+    .navbar .nav-link {
+        padding: 10px 12px !important;
+    }
+
+    .navbar .navbar-nav.align-items-center {
+        align-items: flex-start !important;
+        gap: 8px;
+        margin-top: 8px;
+    }
+}
+/* =========================================================
+   ШАПКА И ПОДВАЛ PROFISCHOOL — ГРАФИТ + ФИОЛЕТОВЫЙ АКЦЕНТ
+   ========================================================= */
+
+/* ===== ШАПКА ===== */
+
+.navbar {
+    background:
+        radial-gradient(circle at 12% 20%, rgba(124, 58, 237, 0.22), transparent 26%),
+        radial-gradient(circle at 88% 80%, rgba(59, 130, 246, 0.16), transparent 28%),
+        linear-gradient(135deg, #111827 0%, #182033 48%, #1e1b4b 100%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.22);
+    backdrop-filter: blur(16px);
+}
+
+.navbar .container {
+    min-height: 96px;
+}
+
+.navbar-brand.logo-link {
+    height: 96px;
+}
+
+.navbar-brand.logo-link img {
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.25));
+}
+
+.navbar .nav-link {
+    color: rgba(255, 255, 255, 0.86) !important;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 9px 14px !important;
+    transition: 0.18s ease;
+}
+
+.navbar .nav-link:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.10);
+}
+
+.navbar .navbar-text {
+    color: rgba(255, 255, 255, 0.84) !important;
+    font-weight: 700;
+}
+
+.navbar .btn-outline-light,
+.navbar .btn-primary {
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, #7c3aed, #9333ea) !important;
+    box-shadow: 0 10px 22px rgba(124, 58, 237, 0.34);
+    font-weight: 800;
+    padding: 8px 15px;
+}
+
+.navbar .btn-outline-light:hover,
+.navbar .btn-primary:hover {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #6d28d9, #7e22ce) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(124, 58, 237, 0.42);
+}
+
+.navbar-toggler {
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.22);
+}
+
+/* ===== ПОДВАЛ ===== */
+
+.site-footer {
+    background:
+        radial-gradient(circle at 12% 18%, rgba(124, 58, 237, 0.18), transparent 28%),
+        radial-gradient(circle at 88% 82%, rgba(59, 130, 246, 0.14), transparent 30%),
+        linear-gradient(135deg, #111827 0%, #182033 48%, #1e1b4b 100%) !important;
+    color: rgba(255, 255, 255, 0.78) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -18px 46px rgba(15, 23, 42, 0.18);
+    backdrop-filter: blur(16px);
+}
+
+.footer-title {
+    color: #ffffff !important;
+    font-weight: 800;
+}
+
+.footer-text {
+    color: rgba(255, 255, 255, 0.78) !important;
+    line-height: 1.65;
+}
+
+.footer-links {
+    padding-left: 18px;
+}
+
+.footer-links li {
+    color: rgba(255, 255, 255, 0.35);
+    margin-bottom: 5px;
+}
+
+.footer-links a,
+.footer-links a:visited {
+    color: rgba(255, 255, 255, 0.76) !important;
+    text-decoration: none;
+    transition: 0.18s ease;
+}
+
+.footer-links a:hover {
+    color: #ffffff !important;
+    text-decoration: none;
+    padding-left: 3px;
+}
+
+.footer-line {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.footer-bottom {
+    color: rgba(255, 255, 255, 0.68) !important;
+}
+
+/* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
+
+@media (max-width: 992px) {
+    .navbar .container {
+        min-height: auto;
+    }
+
+    .navbar-brand.logo-link {
+        height: auto;
+    }
+
+    .navbar-collapse {
+        margin-top: 12px;
+        padding: 14px;
+        border-radius: 22px;
+        background: rgba(17, 24, 39, 0.94);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.20);
+    }
+
+    .navbar .nav-link {
+        padding: 10px 12px !important;
+    }
+
+    .navbar .navbar-nav.align-items-center {
+        align-items: flex-start !important;
+        gap: 8px;
+        margin-top: 8px;
+    }
+}
+
+/* ===== МОДАЛЬНЫЕ ОКНА ===== */
+.modal {
+    z-index: 1060;
+}
+
+.modal-backdrop {
+    z-index: 1050;
+}
+
+.modal-content {
+    background: #ffffff;
+    border: none;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35);
+}
+
+/* ===== ASSIGNMENT ACTIONS ===== */
+.assignment-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.assignment-action-btn {
+    border-radius: 12px !important;
+    font-weight: 800 !important;
+    padding: 8px 12px !important;
+}
+
+.assignment-edit-card {
+    max-width: 680px;
+}
+
+@media (max-width: 768px) {
+    .assignment-actions {
+        justify-content: flex-start;
+    }
+}
+
+
+.calc-filter-card {
+    margin-top:24px;
+    padding:20px;
+    border-radius:22px;
+    background:rgba(255,255,255,.9);
+    border:1px solid rgba(226,232,240,.9);
+}
+.calc-filter-form {
+    display:flex;
+    gap:16px;
+    align-items:end;
+    flex-wrap:wrap;
+}
+.calc-filter-group{min-width:220px;}
+.calc-filter-group label{
+display:block;
+margin-bottom:8px;
+font-weight:700;
+color:#475569;
+}
+
+/* ===== FIX: карточки родителей в отчётах скрытого репетитора ===== */
+.parent-report-card {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    margin-bottom: 0 !important;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.parent-report-card a,
+.parent-report-card .small,
+.parent-report-card .fw-semibold {
+    color: #111827 !important;
+}
+
+.parent-report-card.is-active {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: 2px solid #3b82f6 !important;
+    box-shadow: 0 10px 24px rgba(59, 130, 246, 0.18) !important;
+}
+
+.parent-report-card.is-active a,
+.parent-report-card.is-active .small,
+.parent-report-card.is-active .fw-semibold {
+    color: #111827 !important;
+}
+
+.parent-report-card .btn-outline-danger {
+    color: #dc2626 !important;
+    border-color: #dc2626 !important;
+    background: transparent !important;
+}
+
+.parent-report-card .btn-outline-danger:hover {
+    color: #ffffff !important;
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+}
+
+/* ===== БЕЙДЖИ УВЕДОМЛЕНИЙ В МЕНЮ ===== */
+.nav-link-with-badge {
+    position: relative;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-notification-badge {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 20px;
+    text-align: center;
+    box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.96);
+}
+
+.calc-hidden-total { border-top: 1px solid rgba(148, 163, 184, 0.35); margin-top: 8px; padding-top: 10px; font-weight: 800; }

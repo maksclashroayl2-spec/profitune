@@ -1,0 +1,9 @@
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+Werkzeug==3.0.3
+openpyxl==3.1.5
+waitress==3.0.2
+Flask-WTF==1.2.2
+# sentry-sdk нужен, только если хотите уведомления об ошибках в Sentry
+# (переменная окружения SENTRY_DSN). Без неё сайт работает и без этого пакета.
+sentry-sdk[flask]==2.19.0

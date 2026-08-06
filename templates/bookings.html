@@ -1,0 +1,561 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .bookings-page {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .bookings-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background:
+            radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.12), transparent 28%),
+            radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.10), transparent 30%),
+            rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
+        backdrop-filter: blur(12px);
+        margin-bottom: 24px;
+    }
+
+    .bookings-title {
+        color: #0f172a;
+        font-size: 40px;
+        line-height: 1.12;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin: 0 0 10px;
+    }
+
+    .bookings-text {
+        max-width: 760px;
+        color: #64748b;
+        font-size: 17px;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    .bookings-count-card {
+        flex: 0 0 auto;
+        padding: 16px 20px;
+        border-radius: 22px;
+        background: #111827;
+        color: #ffffff;
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
+    }
+
+    .bookings-count-number {
+        font-size: 30px;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 5px;
+    }
+
+    .bookings-count-text {
+        color: #cbd5e1;
+        font-size: 13px;
+    }
+
+    .bookings-card {
+        overflow: hidden;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.09);
+        backdrop-filter: blur(12px);
+    }
+
+    .bookings-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        padding: 24px 26px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .bookings-card-title {
+        color: #0f172a;
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -0.02em;
+    }
+
+    .bookings-card-subtitle {
+        color: #64748b;
+        font-size: 14px;
+        margin: 6px 0 0;
+    }
+
+    .bookings-table-wrap {
+        overflow-x: auto;
+        padding: 0 18px 18px;
+    }
+
+    .bookings-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+    .bookings-table th {
+        color: #334155;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 18px 10px;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+    .bookings-table td {
+        color: #0f172a;
+        font-size: 15px;
+        padding: 16px 10px;
+        border-bottom: 1px solid #edf2f7;
+        vertical-align: middle;
+    }
+
+    .bookings-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .booking-date,
+    .booking-time,
+    .booking-person {
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .booking-time {
+        color: #475569;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 104px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+
+    .status-approved {
+        background: rgba(34, 197, 94, 0.13);
+        color: #15803d;
+        border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+
+    .booking-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .status-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .status-select {
+        min-height: 38px;
+        min-width: 130px;
+        border-radius: 14px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        padding: 8px 10px;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .status-select:focus {
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.13);
+    }
+
+    .ps-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 8px 14px;
+        border-radius: 14px;
+        border: 0;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 800;
+        transition: 0.18s ease;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .ps-btn-main {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #7c3aed, #9333ea);
+        box-shadow: 0 10px 22px rgba(124, 58, 237, 0.24);
+    }
+
+    .ps-btn-main:hover {
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #6d28d9, #7e22ce);
+    }
+
+    .ps-btn-green {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        box-shadow: 0 10px 22px rgba(22, 163, 74, 0.22);
+    }
+
+    .ps-btn-green:hover {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #15803d, #16a34a);
+        transform: translateY(-2px);
+    }
+
+    .ps-btn-danger {
+        color: #dc2626 !important;
+        background: #ffffff;
+        border: 1px solid #dc2626;
+    }
+
+    .ps-btn-danger:hover {
+        color: #ffffff !important;
+        background: #dc2626;
+        transform: translateY(-2px);
+    }
+
+    .ps-btn-soft {
+        color: #334155 !important;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+    }
+
+    .ps-btn-soft:hover {
+        color: #111827 !important;
+        border-color: #7c3aed;
+        transform: translateY(-2px);
+    }
+
+    .muted-action {
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    .empty-bookings {
+        padding: 34px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 22px;
+        margin: 0 auto 16px;
+        background: #ede9fe;
+        color: #7c3aed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+    }
+
+    .empty-title {
+        color: #0f172a;
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0 0 8px;
+    }
+
+    .empty-text {
+        color: #64748b;
+        line-height: 1.6;
+        margin: 0 0 20px;
+    }
+
+    @media (max-width: 768px) {
+        .bookings-hero {
+            flex-direction: column;
+            align-items: flex-start;
+            border-radius: 24px;
+            padding: 24px;
+        }
+
+        .bookings-title {
+            font-size: 31px;
+        }
+
+        .bookings-card {
+            border-radius: 24px;
+        }
+
+        .bookings-card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 22px;
+        }
+
+        .booking-actions,
+        .status-form {
+            justify-content: flex-start;
+        }
+    }
+</style>
+
+<div class="bookings-page">
+
+    <section class="bookings-hero">
+        <div>
+            {% if user.role == "tutor" %}
+                <h1 class="bookings-title">
+                    Заявки родителей
+                </h1>
+
+                <p class="bookings-text">
+                    Здесь отображаются заявки родителей на занятия. Репетитор может принять заявку,
+                    вернуть её в ожидание или отменить.
+                </p>
+            {% elif user.role == "parent" %}
+                <h1 class="bookings-title">
+                    Мои записи
+                </h1>
+
+                <p class="bookings-text">
+                    Здесь отображаются ваши заявки на занятия, преподаватель и текущий статус.
+                </p>
+            {% else %}
+                <h1 class="bookings-title">
+                    Все заявки
+                </h1>
+
+                <p class="bookings-text">
+                    Здесь отображаются все заявки на занятия, созданные пользователями платформы.
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="bookings-count-card">
+            <div class="bookings-count-number">
+                {{ bookings|length }}
+            </div>
+            <div class="bookings-count-text">
+                всего записей
+            </div>
+        </div>
+    </section>
+
+    <section class="bookings-card">
+        <div class="bookings-card-header">
+            <div>
+                {% if user.role == "tutor" %}
+                    <h2 class="bookings-card-title">
+                        Заявки на мои занятия
+                    </h2>
+
+                    <p class="bookings-card-subtitle">
+                        Меняйте статус заявки после согласования с родителем.
+                    </p>
+                {% else %}
+                    <h2 class="bookings-card-title">
+                        Список занятий
+                    </h2>
+
+                    <p class="bookings-card-subtitle">
+                        Статус заявки может быть ожидающим, одобренным или отменённым.
+                    </p>
+                {% endif %}
+            </div>
+
+            {% if user.role == "parent" %}
+                <a href="{{ url_for('tutors') }}" class="ps-btn ps-btn-main">
+                    Найти репетитора
+                </a>
+            {% elif user.role == "tutor" %}
+                <a href="{{ url_for('edit_tutor_profile') }}" class="ps-btn ps-btn-main">
+                    Редактировать профиль
+                </a>
+            {% elif user.role == "admin" %}
+                <a href="{{ url_for('admin') }}" class="ps-btn ps-btn-main">
+                    Админ-панель
+                </a>
+            {% endif %}
+        </div>
+
+        {% if bookings %}
+            <div class="bookings-table-wrap">
+                <table class="bookings-table">
+                    <thead>
+                        <tr>
+
+                            {% if user.role == "tutor" %}
+                                <th>Родитель</th>
+                            {% elif user.role == "parent" %}
+                                <th>Репетитор</th>
+                            {% else %}
+                                <th>С кем</th>
+                            {% endif %}
+
+                            <th>Статус</th>
+                            <th class="text-end">Действия</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for b in bookings %}
+                        <tr>
+
+
+                            <td class="booking-person">
+                                {{ b.with_name }}
+                            </td>
+
+                            <td>
+                                {% if b.status == "approved" %}
+                                    <span class="status-badge status-approved">
+                                        Одобрена
+                                    </span>
+                                {% elif b.status == "cancelled" %}
+                                    <span class="status-badge status-cancelled">
+                                        Отменена
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-pending">
+                                        Ожидает
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="booking-actions">
+                                    {% if user.role == "tutor" %}
+                                        {% if b.status == "approved" and not user.is_hidden %}
+                                            <a class="ps-btn ps-btn-main"
+                                               href="{{ url_for('visible_tutor_reports', parent_id=b.parent_id) }}">
+                                                Отчёты
+                                            </a>
+                                        {% endif %}
+
+                                        <form method="post"
+                                              action="{{ url_for('tutor_update_booking_status', booking_id=b.id) }}"
+                                              class="status-form">
+                {{ csrf_field() }}
+
+                                            <select name="status" class="status-select">
+                                                <option value="pending" {% if b.status == "pending" %}selected{% endif %}>
+                                                    Ожидает
+                                                </option>
+
+                                                <option value="approved" {% if b.status == "approved" %}selected{% endif %}>
+                                                    Одобрена
+                                                </option>
+
+                                                <option value="cancelled" {% if b.status == "cancelled" %}selected{% endif %}>
+                                                    Отменена
+                                                </option>
+                                            </select>
+
+                                            <button type="submit" class="ps-btn ps-btn-green">
+                                                Сохранить
+                                            </button>
+                                        </form>
+
+                                        <form method="post"
+                                              action="{{ url_for('tutor_delete_booking', booking_id=b.id) }}"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Удалить эту заявку?');">
+                {{ csrf_field() }}
+                                            <button type="submit" class="ps-btn ps-btn-danger">
+                                                Удалить
+                                            </button>
+                                        </form>
+
+                                    {% elif user.role == "parent" %}
+                                        {% if b.status != "cancelled" %}
+                                            <a class="ps-btn ps-btn-danger"
+                                               href="{{ url_for('cancel_booking', booking_id=b.id) }}"
+                                               onclick="return confirm('Отменить заявку на занятие?');">
+                                                Отменить
+                                            </a>
+                                        {% else %}
+                                            <span class="muted-action">—</span>
+                                        {% endif %}
+
+                                    {% elif user.role == "admin" %}
+                                        <a href="{{ url_for('admin') }}" class="ps-btn ps-btn-soft">
+                                            Управлять
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-bookings">
+                <div class="empty-icon">📅</div>
+
+                {% if user.role == "tutor" %}
+                    <h3 class="empty-title">
+                        Заявок пока нет
+                    </h3>
+
+                    <p class="empty-text">
+                        Когда родители отправят заявку на занятие, она появится в этом разделе.
+                    </p>
+
+                    <a href="{{ url_for('edit_tutor_profile') }}" class="ps-btn ps-btn-main">
+                        Редактировать профиль
+                    </a>
+                {% else %}
+                    <h3 class="empty-title">
+                        Пока занятий нет
+                    </h3>
+
+                    <p class="empty-text">
+                        Вы ещё не отправляли заявки на занятия. Откройте каталог репетиторов,
+                        выберите подходящего преподавателя и создайте первую заявку.
+                    </p>
+
+                    <a href="{{ url_for('tutors') }}" class="ps-btn ps-btn-main">
+                        Перейти к репетиторам
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}

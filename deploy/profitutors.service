@@ -1,0 +1,42 @@
+# Файл сервиса systemd. Куда положить на сервере:
+#   /etc/systemd/system/profitutors.service
+#
+# После копирования:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable profitutors
+#   sudo systemctl start profitutors
+#
+# Посмотреть статус:   sudo systemctl status profitutors
+# Посмотреть логи:     sudo journalctl -u profitutors -f
+# Перезапустить:       sudo systemctl restart profitutors
+
+[Unit]
+Description=ProfiTutors (Flask + waitress)
+After=network.target
+
+[Service]
+# Не запускаем от root — отдельный пользователь без прав администратора.
+# Создать: sudo adduser --system --group profitutors
+User=profitutors
+Group=profitutors
+
+# Путь, куда вы загрузите файлы проекта на сервере.
+WorkingDirectory=/opt/profitutors/profischool_app
+
+# Переменные окружения (SECRET_KEY, SMTP_*, TELEGRAM_*, SENTRY_DSN)
+# читаются из этого файла — см. deploy/.env.example.
+EnvironmentFile=/opt/profitutors/profischool_app/.env
+
+ExecStart=/opt/profitutors/profischool_app/.venv/bin/python /opt/profitutors/profischool_app/app.py
+
+# Если процесс упадёт — перезапустить через 5 секунд, не сдаваться.
+Restart=always
+RestartSec=5
+
+# Ограничение доступа к файловой системе (базовая защита) —
+# сервис не может писать никуда, кроме своей рабочей папки.
+ProtectSystem=strict
+ReadWritePaths=/opt/profitutors/profischool_app/instance /opt/profitutors/profischool_app/static
+
+[Install]
+WantedBy=multi-user.target

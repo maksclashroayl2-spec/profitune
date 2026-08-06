@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 480px;">
+
+  <h3 class="mb-1">Подтверждение почты</h3>
+  <div class="text-muted small mb-4">
+    Мы отправили 6-значный код на <strong>{{ email }}</strong>. Проверьте папку «Спам»,
+    если письмо не пришло за пару минут.
+  </div>
+
+  <div class="card rounded-4 shadow-sm border-0 mb-3">
+    <div class="card-body">
+      <form method="post">
+                {{ csrf_field() }}
+        <input type="hidden" name="email" value="{{ email }}">
+        <div class="mb-3">
+          <label class="form-label">Код из письма</label>
+          <input
+            type="text"
+            class="form-control form-control-lg text-center"
+            name="code"
+            inputmode="numeric"
+            pattern="[0-9]{6}"
+            maxlength="6"
+            placeholder="000000"
+            autofocus
+            required
+            style="letter-spacing: 6px; font-weight: 700;"
+          >
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Подтвердить</button>
+      </form>
+    </div>
+  </div>
+
+  <form method="post">
+                {{ csrf_field() }}
+    <input type="hidden" name="email" value="{{ email }}">
+    <input type="hidden" name="action" value="resend">
+    <button type="submit" class="btn btn-outline-secondary w-100">Отправить код ещё раз</button>
+  </form>
+
+</div>
+{% endblock %}

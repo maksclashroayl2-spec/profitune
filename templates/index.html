@@ -1,0 +1,721 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .ps-home {
+        max-width: 1320px;
+        margin: 0 auto;
+    }
+
+    .ps-hero {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 28px;
+        align-items: start;
+        margin-bottom: 24px;
+    }
+
+    .ps-hero-left {
+        position: relative;
+        overflow: hidden;
+        border-radius: 34px;
+        padding: 46px;
+        background:
+            radial-gradient(circle at 15% 20%, rgba(255, 213, 128, 0.35), transparent 30%),
+            radial-gradient(circle at 85% 85%, rgba(124, 58, 237, 0.16), transparent 34%),
+            linear-gradient(135deg, rgba(255,255,255,0.96), rgba(250,250,255,0.92));
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
+    }
+
+    .ps-hero-title {
+        max-width: 760px;
+        color: #0f172a;
+        font-size: 48px;
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+        font-weight: 800;
+        margin: 0 0 18px;
+    }
+
+    .ps-hero-title span {
+        color: #7c3aed;
+    }
+
+    .ps-hero-text {
+        max-width: 650px;
+        color: #475569;
+        font-size: 18px;
+        line-height: 1.7;
+        margin: 0 0 28px;
+    }
+
+    .ps-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 26px;
+    }
+
+    .ps-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 12px 22px;
+        border-radius: 16px;
+        border: 0;
+        text-decoration: none;
+        font-weight: 700;
+        transition: 0.18s ease;
+    }
+
+    .ps-btn-main {
+        color: #fff;
+        background: linear-gradient(135deg, #7c3aed, #9333ea);
+        box-shadow: 0 14px 28px rgba(124, 58, 237, 0.28);
+    }
+
+    .ps-btn-main:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 18px 34px rgba(124, 58, 237, 0.36);
+    }
+
+    .ps-btn-soft {
+        background: #ffffff;
+        color: #334155;
+        border: 1px solid #dbe2ea;
+    }
+
+    .ps-btn-soft:hover {
+        color: #111827;
+        border-color: #7c3aed;
+        transform: translateY(-2px);
+    }
+
+    .ps-quick-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .ps-chip {
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.78);
+        border: 1px solid rgba(226,232,240,0.95);
+        color: #475569;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .ps-hero-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 34px;
+        padding: 26px;
+        background: #111827;
+        color: #fff;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+    }
+
+    .ps-hero-card::before {
+        content: "";
+        position: absolute;
+        width: 240px;
+        height: 240px;
+        right: -90px;
+        top: -70px;
+        border-radius: 50%;
+        background: rgba(124, 58, 237, 0.45);
+    }
+
+    .ps-hero-card::after {
+        content: "";
+        position: absolute;
+        width: 180px;
+        height: 180px;
+        left: -80px;
+        bottom: -70px;
+        border-radius: 50%;
+        background: rgba(251, 191, 36, 0.28);
+    }
+
+    .ps-card-inner {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        gap: 16px;
+    }
+
+    .ps-system-card {
+        position: relative;
+        z-index: 2;
+        background: rgba(255, 255, 255, 0.10);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 28px;
+        padding: 22px;
+        backdrop-filter: blur(14px);
+    }
+
+    .ps-system-title {
+        color: #ffffff;
+        font-size: 26px;
+        line-height: 1.18;
+        font-weight: 800;
+        margin: 0 0 10px;
+    }
+
+    .ps-system-text {
+        color: #dbeafe;
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0 0 18px;
+    }
+
+    .ps-system-grid {
+        display: grid;
+        gap: 10px;
+    }
+
+    .ps-system-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.10);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .ps-system-icon {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.14);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+    }
+
+    .ps-system-name {
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 800;
+        margin-bottom: 2px;
+    }
+
+    .ps-system-desc {
+        color: #cbd5e1;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .ps-role-card {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        gap: 12px;
+        background: #ffffff;
+        color: #0f172a;
+        border-radius: 28px;
+        padding: 20px;
+    }
+
+    .ps-role-top {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        padding: 12px;
+        border-radius: 20px;
+        background: #f8fafc;
+    }
+
+    .ps-role-icon {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        border-radius: 18px;
+        background: #ede9fe;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+    }
+
+    .ps-role-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 3px;
+    }
+
+    .ps-role-text {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .ps-section {
+        margin-top: 26px;
+    }
+
+    .ps-section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 18px;
+        margin-bottom: 16px;
+    }
+
+    .ps-section-title {
+        font-size: 28px;
+        color: #0f172a;
+        font-weight: 800;
+        margin: 0 0 6px;
+        letter-spacing: -0.02em;
+    }
+
+    .ps-section-text {
+        color: #64748b;
+        margin: 0;
+        line-height: 1.6;
+        max-width: 720px;
+    }
+
+    .ps-subjects {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 14px;
+    }
+
+    .ps-subject {
+        min-height: 128px;
+        border-radius: 24px;
+        padding: 20px;
+        background: rgba(255,255,255,0.94);
+        border: 1px solid rgba(226,232,240,0.95);
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+        transition: 0.18s ease;
+    }
+
+    .ps-subject:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 44px rgba(15, 23, 42, 0.11);
+    }
+
+    .ps-subject-icon {
+        font-size: 28px;
+        margin-bottom: 12px;
+    }
+
+    .ps-subject-title {
+        color: #0f172a;
+        font-size: 16px;
+        font-weight: 800;
+        line-height: 1.25;
+    }
+
+    .ps-benefits {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .ps-benefit-panel {
+        border-radius: 28px;
+        padding: 28px;
+        background: rgba(255,255,255,0.94);
+        border: 1px solid rgba(226,232,240,0.95);
+        box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+    }
+
+    .ps-benefit-panel.dark {
+        background: linear-gradient(135deg, #1e1b4b, #111827);
+        color: #ffffff;
+    }
+
+    .ps-benefit-title {
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0 0 16px;
+    }
+
+    .ps-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+    }
+
+    .ps-list li {
+        display: flex;
+        gap: 10px;
+        color: #475569;
+        line-height: 1.55;
+    }
+
+    .ps-benefit-panel.dark .ps-list li {
+        color: #dbeafe;
+    }
+
+    .ps-list li::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        flex: 0 0 10px;
+        margin-top: 8px;
+        border-radius: 50%;
+        background: #7c3aed;
+    }
+
+    .ps-benefit-panel.dark .ps-list li::before {
+        background: #fbbf24;
+    }
+
+    .ps-path {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+    }
+
+    .ps-path-item {
+        position: relative;
+        padding: 24px;
+        border-radius: 26px;
+        background: rgba(255,255,255,0.94);
+        border: 1px solid rgba(226,232,240,0.95);
+        box-shadow: 0 16px 38px rgba(15, 23, 42, 0.075);
+    }
+
+    .ps-path-number {
+        width: 42px;
+        height: 42px;
+        border-radius: 16px;
+        background: #ede9fe;
+        color: #7c3aed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        margin-bottom: 16px;
+    }
+
+    .ps-path-title {
+        font-size: 19px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .ps-path-text {
+        color: #64748b;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .ps-final {
+        margin-top: 26px;
+        border-radius: 30px;
+        padding: 34px;
+        background:
+            radial-gradient(circle at 90% 20%, rgba(251, 191, 36, 0.22), transparent 26%),
+            linear-gradient(135deg, #7c3aed, #9333ea);
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 22px;
+        box-shadow: 0 24px 54px rgba(124, 58, 237, 0.24);
+    }
+
+    .ps-final-title {
+        font-size: 27px;
+        font-weight: 800;
+        margin: 0 0 8px;
+    }
+
+    .ps-final-text {
+        color: #ede9fe;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .ps-final .ps-btn {
+        background: #ffffff;
+        color: #4c1d95;
+        box-shadow: none;
+    }
+
+    .ps-final .ps-btn:hover {
+        color: #4c1d95;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 1200px) {
+        .ps-subjects {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .ps-hero,
+        .ps-benefits,
+        .ps-path {
+            grid-template-columns: 1fr;
+        }
+
+        .ps-hero-title {
+            font-size: 38px;
+        }
+
+        .ps-final {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .ps-hero-left,
+        .ps-hero-card,
+        .ps-benefit-panel,
+        .ps-final {
+            border-radius: 22px;
+            padding: 24px;
+        }
+
+        .ps-hero-title {
+            font-size: 30px;
+        }
+
+        .ps-hero-text {
+            font-size: 16px;
+        }
+
+        .ps-hero-actions {
+            flex-direction: column;
+        }
+
+        .ps-btn {
+            width: 100%;
+        }
+
+        .ps-subjects {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+
+<div class="ps-home">
+
+    <section class="ps-hero">
+        <div class="ps-hero-left">
+            <h1 class="ps-hero-title">
+                Найдите преподавателя под свою <span>цель обучения</span>
+            </h1>
+
+            <p class="ps-hero-text">
+                ProfiTutors помогает родителям выбрать репетитора по предмету,
+                опыту и рейтингу. Заявку на занятие можно отправить прямо из анкеты преподавателя.
+            </p>
+
+            <div class="ps-hero-actions">
+                <a class="ps-btn ps-btn-main" href="{{ url_for('tutors') }}">
+                    Перейти к репетиторам
+                </a>
+
+                {% if not user %}
+                <a class="ps-btn ps-btn-soft" href="{{ url_for('register') }}">
+                    Зарегистрироваться
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="ps-quick-info">
+                <div class="ps-chip">Подготовка к экзаменам</div>
+                <div class="ps-chip">Школьные предметы</div>
+                <div class="ps-chip">Онлайн-заявка</div>
+            </div>
+        </div>
+
+        <div class="ps-hero-card">
+            <div class="ps-card-inner">
+                <div class="ps-system-card">
+                    <h2 class="ps-system-title">
+                        Всё для записи к репетитору в одном интерфейсе
+                    </h2>
+
+                    <p class="ps-system-text">
+                        ProfiTutors объединяет каталог преподавателей, подробные анкеты,
+                        онлайн-заявки и личный раздел для отслеживания занятий.
+                    </p>
+
+                    <div class="ps-system-grid">
+                        <div class="ps-system-item">
+                            <div class="ps-system-icon">🔎</div>
+                            <div>
+                                <div class="ps-system-name">Поиск репетитора</div>
+                                <div class="ps-system-desc">по предмету и рейтингу</div>
+                            </div>
+                        </div>
+
+                        <div class="ps-system-item">
+                            <div class="ps-system-icon">👤</div>
+                            <div>
+                                <div class="ps-system-name">Анкета преподавателя</div>
+                                <div class="ps-system-desc">опыт, описание и аватар</div>
+                            </div>
+                        </div>
+
+                        <div class="ps-system-item">
+                            <div class="ps-system-icon">📅</div>
+                            <div>
+                                <div class="ps-system-name">Заявка на занятие</div>
+                                <div class="ps-system-desc">отправка в один клик</div>
+                            </div>
+                        </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ps-role-card">
+                    <div class="ps-role-top">
+                        <div class="ps-role-icon">🎓</div>
+                        <div>
+                            <div class="ps-role-title">Для родителя</div>
+                            <div class="ps-role-text">
+                                быстро найти преподавателя и отправить заявку
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ps-role-top">
+                        <div class="ps-role-icon">📚</div>
+                        <div>
+                            <div class="ps-role-title">Для репетитора</div>
+                            <div class="ps-role-text">
+                                оформить профиль и получать заявки от родителей
+                            </div>
+                        </div>
+                    </div>
+
+                    <a class="ps-btn ps-btn-main" href="{{ url_for('tutors') }}">
+                        Перейти к каталогу репетиторов
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ps-section">
+        <div class="ps-section-head">
+            <div>
+                <h2 class="ps-section-title">Популярные направления</h2>
+                <p class="ps-section-text">
+                    Родители могут искать преподавателей по учебным предметам и направлениям подготовки.
+                </p>
+            </div>
+        </div>
+
+        <div class="ps-subjects">
+            <div class="ps-subject">
+                <div class="ps-subject-icon">📐</div>
+                <div class="ps-subject-title">Математика</div>
+            </div>
+
+            <div class="ps-subject">
+                <div class="ps-subject-icon">⚡</div>
+                <div class="ps-subject-title">Физика</div>
+            </div>
+
+            <div class="ps-subject">
+                <div class="ps-subject-icon">📝</div>
+                <div class="ps-subject-title">Подготовка к ОГЭ/ЕГЭ</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ps-section">
+        <div class="ps-benefits">
+            <div class="ps-benefit-panel">
+                <h2 class="ps-benefit-title">Родителю удобно выбирать</h2>
+
+                <ul class="ps-list">
+                    <li>можно сравнить анкеты преподавателей по предмету;</li>
+                    <li>в профиле сразу видны опыт, рейтинг и описание репетитора;</li>
+                    <li>заявка на занятие создаётся через простую форму;</li>
+                </ul>
+            </div>
+
+            <div class="ps-benefit-panel dark">
+                <h2 class="ps-benefit-title">Репетитору удобно работать</h2>
+
+                <ul class="ps-list">
+                    <li>есть личная анкета с предметами и опытом;</li>
+                    <li>можно выбрать аватар и оформить описание профиля;</li>
+                    <li>заявки родителей собираются в одном разделе;</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="ps-section">
+        <div class="ps-section-head">
+            <div>
+                <h2 class="ps-section-title">Запись без лишних действий</h2>
+                <p class="ps-section-text">
+                    Сценарий работы построен так, чтобы родитель быстро дошёл от выбора предмета
+                    до отправки заявки преподавателю.
+                </p>
+            </div>
+        </div>
+
+        <div class="ps-path">
+            <div class="ps-path-item">
+                <div class="ps-path-number">01</div>
+                <div class="ps-path-title">Выбор предмета</div>
+                <p class="ps-path-text">
+                    Родитель открывает каталог и находит преподавателей по нужному направлению.
+                </p>
+            </div>
+
+            <div class="ps-path-item">
+                <div class="ps-path-number">02</div>
+                <div class="ps-path-title">Сравнение анкет</div>
+                <p class="ps-path-text">
+                    Можно посмотреть опыт, рейтинг и описание каждого репетитора.
+                </p>
+            </div>
+
+            <div class="ps-path-item">
+                <div class="ps-path-number">03</div>
+                <div class="ps-path-title">Отправка заявки</div>
+                <p class="ps-path-text">
+                    Быстрая отправка заявки в один клик.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="ps-final">
+        <div>
+            <h2 class="ps-final-title">Посмотрите доступных репетиторов</h2>
+            <p class="ps-final-text">
+                Откройте каталог, выберите подходящего преподавателя и отправьте заявку на занятие.
+            </p>
+        </div>
+
+        <a class="ps-btn" href="{{ url_for('tutors') }}">
+            Открыть каталог
+        </a>
+    </section>
+
+</div>
+
+{% endblock %}

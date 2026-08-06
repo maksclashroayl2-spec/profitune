@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h3 class="mb-1">Бэкапы базы данных</h3>
+      <div class="text-muted small">
+        Автоматический снимок делается раз в сутки при первом заходе на сайт.
+        Хранится последних {{ backups_to_keep }} — старые удаляются сами.
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('admin_create_backup') }}">
+                {{ csrf_field() }}
+      <button type="submit" class="btn btn-primary">Сделать бэкап сейчас</button>
+    </form>
+  </div>
+
+  <div class="card rounded-4 shadow-sm border-0">
+    <div class="card-body">
+      {% if backups %}
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Дата и время</th>
+                <th>Размер</th>
+                <th>Файл</th>
+                <th style="width: 1%; white-space: nowrap;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for backup in backups %}
+                <tr>
+                  <td>{{ backup.created_at.strftime("%d.%m.%Y %H:%M:%S") }}</td>
+                  <td class="text-muted">{{ (backup.size_bytes / 1024 / 1024) | round(2) }} МБ</td>
+                  <td class="text-muted small">{{ backup.filename }}</td>
+                  <td>
+                    <a class="btn btn-sm btn-outline-secondary"
+                       href="{{ url_for('admin_download_backup', filename=backup.filename) }}">
+                      Скачать
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-muted small mt-3">Всего бэкапов: {{ backups|length }}.</div>
+      {% else %}
+        <div class="alert alert-light border mb-0">
+          Бэкапов пока нет. Нажмите «Сделать бэкап сейчас» или дождитесь автоматического —
+          он создастся при следующем заходе на сайт.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="alert alert-warning mt-3 mb-0">
+    Бэкап хранится на этом же диске, что и сама база. Для настоящей защиты от потери
+    диска или компьютера — периодически скачивайте свежий файл и сохраняйте
+    его отдельно (облако, другой носитель).
+  </div>
+
+</div>
+{% endblock %}

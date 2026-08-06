@@ -1,0 +1,592 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .payroll-shell {
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+
+  .payroll-hero {
+    border-radius: 32px;
+    padding: 32px 34px;
+    margin-bottom: 24px;
+    background:
+      radial-gradient(circle at 8% 18%, rgba(124, 58, 237, 0.14), transparent 32%),
+      radial-gradient(circle at 92% 82%, rgba(37, 99, 235, 0.12), transparent 34%),
+      rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(226, 232, 240, 0.96);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
+    backdrop-filter: blur(14px);
+  }
+
+  .payroll-hero h1 {
+    margin: 0;
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    color: #0f172a;
+  }
+
+  .payroll-hero p {
+    max-width: 760px;
+    margin: 10px 0 0;
+    color: #64748b;
+    line-height: 1.7;
+  }
+
+  .payroll-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .payroll-stat {
+    border-radius: 26px;
+    padding: 22px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(226, 232, 240, 0.96);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+  }
+
+  .payroll-stat span {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 8px;
+  }
+
+  .payroll-stat strong {
+    display: block;
+    color: #0f172a;
+    font-size: 25px;
+    font-weight: 950;
+  }
+
+  .payroll-stat.good strong { color: #15803d; }
+  .payroll-stat.warn strong { color: #b45309; }
+  .payroll-stat.bad strong { color: #b91c1c; }
+  .payroll-stat.accent strong { color: #2563eb; }
+
+  .payroll-filter,
+  .payroll-card {
+    border-radius: 28px;
+    padding: 22px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(226, 232, 240, 0.96);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+  }
+
+  .payroll-filter form {
+    display: flex;
+    gap: 14px;
+    align-items: end;
+    flex-wrap: wrap;
+  }
+
+  .payroll-filter label {
+    color: #334155;
+    font-weight: 800;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .period-note {
+    margin: 0 0 12px;
+    color: #334155;
+    font-weight: 900;
+  }
+
+  .period-note span { color: #2563eb; }
+
+  .payroll-type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .payroll-type {
+    display: block;
+    border-radius: 24px;
+    padding: 22px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(226, 232, 240, 0.96);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+    text-decoration: none;
+    color: #0f172a;
+    transition: .18s ease;
+  }
+
+  .payroll-type:hover {
+    transform: translateY(-2px);
+    color: #0f172a;
+    box-shadow: 0 20px 46px rgba(15, 23, 42, 0.11);
+  }
+
+  .payroll-type.active {
+    border: 2px solid #2563eb;
+    box-shadow: 0 20px 46px rgba(37, 99, 235, 0.18);
+  }
+
+  .payroll-type span {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 8px;
+  }
+
+  .payroll-type strong {
+    font-size: 24px;
+    font-weight: 950;
+  }
+
+  .payroll-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+  }
+
+  .payroll-table th {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 12px 14px;
+  }
+
+  .payroll-table td {
+    padding: 16px 14px;
+    background: #ffffff;
+    border-top: 1px solid rgba(226, 232, 240, 0.9);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    vertical-align: middle;
+  }
+
+  .payroll-table td:first-child {
+    border-left: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 18px 0 0 18px;
+  }
+
+  .payroll-table td:last-child {
+    border-right: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 0 18px 18px 0;
+  }
+
+  .role-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 7px 11px;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .role-admin { background: #ede9fe; color: #6d28d9; }
+  .role-visible { background: #dbeafe; color: #1d4ed8; }
+  .role-hidden { background: #dcfce7; color: #15803d; }
+
+  .amount {
+    color: #0f172a;
+    font-weight: 950;
+    white-space: nowrap;
+  }
+
+  .muted-small {
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  .hidden-owner-list {
+    display: grid;
+    gap: 14px;
+  }
+
+  .hidden-owner-card {
+    border-radius: 24px;
+    border: 1px solid rgba(226, 232, 240, 0.96);
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  .hidden-owner-toggle {
+    width: 100%;
+    border: 0;
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.98), rgba(239, 246, 255, 0.92));
+    color: #0f172a;
+    padding: 18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    font-weight: 950;
+  }
+
+  .hidden-owner-toggle .owner-meta {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .hidden-owner-body {
+    padding: 16px;
+  }
+
+  .hidden-tutor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .hidden-tutor-card {
+    border-radius: 20px;
+    padding: 16px;
+    background: rgba(248, 250, 252, 0.95);
+    border: 1px solid rgba(226, 232, 240, 0.96);
+  }
+
+  .hidden-tutor-card h5 {
+    margin: 0 0 10px;
+    font-weight: 950;
+    color: #0f172a;
+  }
+
+  .hidden-tutor-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    color: #334155;
+    border-bottom: 1px dashed rgba(203, 213, 225, 0.9);
+  }
+
+  .hidden-tutor-row:last-child { border-bottom: 0; }
+
+  .payroll-table tr.visible-status-success td {
+    background: linear-gradient(135deg, rgba(220, 252, 231, 0.88), rgba(255, 255, 255, 0.98));
+    border-color: rgba(34, 197, 94, 0.28);
+  }
+
+  .payroll-table tr.visible-status-warning td {
+    background: linear-gradient(135deg, rgba(254, 249, 195, 0.9), rgba(255, 255, 255, 0.98));
+    border-color: rgba(234, 179, 8, 0.34);
+  }
+
+  .payroll-table tr.visible-status-danger td {
+    background: linear-gradient(135deg, rgba(254, 226, 226, 0.9), rgba(255, 255, 255, 0.98));
+    border-color: rgba(239, 68, 68, 0.34);
+  }
+
+  .payroll-table tr.visible-status-neutral td {
+    background: rgba(248, 250, 252, 0.98);
+  }
+
+  .payment-status-text {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .visible-status-success .payment-status-text { color: #15803d; }
+  .visible-status-warning .payment-status-text { color: #b45309; }
+  .visible-status-danger .payment-status-text { color: #b91c1c; }
+  .visible-status-neutral .payment-status-text { color: #64748b; }
+
+  @media (max-width: 900px) {
+    .payroll-stats,
+    .payroll-type-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .payroll-table-wrap {
+      overflow-x: auto;
+    }
+
+    .hidden-tutor-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="payroll-shell">
+  <section class="payroll-hero">
+    <h1>Зарплаты</h1>
+    <p>
+      Ведомость выплат по завершённым оплаченным неделям: администраторы,
+      нескрытые репетиторы и скрытые репетиторы. Наконец-то одно место,
+      где видно кому сколько переводить, а не археология по вкладкам.
+    </p>
+  </section>
+
+  <section class="payroll-stats">
+    <div class="payroll-stat">
+      <span>Всего к выплате</span>
+      <strong>{{ format_money(totals.all) }}</strong>
+    </div>
+    <div class="payroll-stat">
+      <span>Админам</span>
+      <strong>{{ format_money(totals.admins) }}</strong>
+    </div>
+    <div class="payroll-stat">
+      <span>Нескрытым</span>
+      <strong>{{ format_money(totals.visible) }}</strong>
+    </div>
+    <div class="payroll-stat">
+      <span>Скрытым</span>
+      <strong>{{ format_money(totals.hidden) }}</strong>
+    </div>
+    <div class="payroll-stat bad">
+      <span>Зарплата бухгалтера (1% ×2, со всех нескрытых)</span>
+      <strong>{{ format_money(accountant_fee_grand_total) }}</strong>
+    </div>
+  </section>
+
+  <section class="payroll-stats">
+    <div class="payroll-stat good">
+      <span>Оплачено</span>
+      <strong>{{ format_money(payment_summary.paid_sum) }}</strong>
+    </div>
+    <div class="payroll-stat warn">
+      <span>На проверке</span>
+      <strong>{{ format_money(payment_summary.pending_sum) }}</strong>
+    </div>
+    <div class="payroll-stat bad">
+      <span>Не оплачено</span>
+      <strong>{{ format_money(payment_summary.unpaid_sum) }}</strong>
+    </div>
+    <div class="payroll-stat accent">
+      <span>Записей в подсчёте</span>
+      <strong>{{ payment_summary.records }}</strong>
+    </div>
+  </section>
+
+  <section class="payroll-filter">
+    <p class="period-note">Период: <span>{{ period_caption }}</span>{% if date_from and date_to %} · {{ date_from }} — {{ date_to }}{% endif %}</p>
+    <form method="get">
+      <input type="hidden" name="type" value="{{ payout_type }}">
+      <div>
+        <label>С даты</label>
+        <input class="form-control" type="date" name="date_from" value="{{ date_from }}">
+      </div>
+      <div>
+        <label>По дату</label>
+        <input class="form-control" type="date" name="date_to" value="{{ date_to }}">
+      </div>
+      <button class="btn btn-primary" type="submit">Применить</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('admin_payroll', type=payout_type) }}">Сбросить</a>
+      <a class="btn btn-outline-success" href="{{ url_for('admin_payroll', type=payout_type, date_from=date_from, date_to=date_to, export='xlsx') }}">
+        Скачать Excel
+      </a>
+    </form>
+  </section>
+
+  <section class="payroll-type-grid">
+    <a class="payroll-type {% if payout_type == 'admins' %}active{% endif %}"
+       href="{{ url_for('admin_payroll', type='admins', date_from=date_from, date_to=date_to) }}">
+      <span>Кому переводим</span>
+      <strong>Админам</strong>
+      <div class="muted-small mt-2">{{ format_money(totals.admins) }}</div>
+    </a>
+
+    <a class="payroll-type {% if payout_type == 'visible' %}active{% endif %}"
+       href="{{ url_for('admin_payroll', type='visible', date_from=date_from, date_to=date_to) }}">
+      <span>Кому переводим</span>
+      <strong>Нескрытым</strong>
+      <div class="muted-small mt-2">{{ format_money(totals.visible) }}</div>
+    </a>
+
+    <a class="payroll-type {% if payout_type == 'hidden' %}active{% endif %}"
+       href="{{ url_for('admin_payroll', type='hidden', date_from=date_from, date_to=date_to) }}">
+      <span>Кому переводим</span>
+      <strong>Скрытым</strong>
+      <div class="muted-small mt-2">{{ format_money(totals.hidden) }}</div>
+    </a>
+  </section>
+
+  <section class="payroll-card">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+      <div>
+        <h3 class="mb-1">
+          {% if payout_type == 'admins' %}
+            Выплаты администраторам
+          {% elif payout_type == 'visible' %}
+            Выплаты нескрытым репетиторам
+          {% else %}
+            Выплаты скрытым репетиторам
+          {% endif %}
+        </h3>
+        <div class="muted-small">Показываются только суммы по завершённым оплаченным неделям.</div>
+      </div>
+      <div class="amount">
+        {{ format_money(rows | sum(attribute='amount')) }}
+      </div>
+    </div>
+
+    <div class="payroll-table-wrap">
+      {% if payout_type == 'hidden' %}
+        <div class="hidden-owner-list">
+          {% for group in hidden_groups %}
+            <div class="hidden-owner-card">
+              <button class="hidden-owner-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#hidden-owner-{{ group.visible_id }}" aria-expanded="false">
+                <span>
+                  {{ group.visible_name }}
+                  <div class="owner-meta">Скрытых: {{ group.hidden_count }} · Часов: {{ format_number(group.hours) }} ч · К выплате: {{ format_money(group.amount) }}</div>
+                </span>
+                <span>▾</span>
+              </button>
+
+              <div class="collapse" id="hidden-owner-{{ group.visible_id }}">
+                <div class="hidden-owner-body">
+                  {% if group.rows %}
+                    <div class="hidden-tutor-grid">
+                      {% for row in group.rows %}
+                        <div class="hidden-tutor-card">
+                          <h5>{{ row.name }}</h5>
+                          <div class="hidden-tutor-row"><span>Родителей</span><strong>{{ row.parents_count|int }}</strong></div>
+                          <div class="hidden-tutor-row"><span>Часы</span><strong>{{ format_number(row.hours) }} ч</strong></div>
+                          <div class="hidden-tutor-row"><span>Основание</span><strong>{{ row.basis }}</strong></div>
+                          {% if row.base_salary is defined %}
+                            <div class="hidden-tutor-row"><span>Зарплата за часы</span><strong>{{ format_money(row.base_salary) }}</strong></div>
+                          {% endif %}
+                          {% if row.profit_share is defined and row.profit_share > 0 %}
+                            <div class="hidden-tutor-row"><span>Доля прибыли</span><strong class="amount">{{ format_money(row.profit_share) }}</strong></div>
+                          {% endif %}
+                          <div class="hidden-tutor-row"><span>Комиссия 4%</span><strong class="text-danger">учтена в базе</strong></div>
+                          <div class="hidden-tutor-row"><span>К выплате</span><strong class="amount">{{ format_money(row.amount) }}</strong></div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% else %}
+                    <div class="text-muted">У этого нескрытого репетитора нет выплат скрытым за выбранный период.</div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="text-center text-muted py-4">Нет нескрытых репетиторов для отображения.</div>
+          {% endfor %}
+        </div>
+      {% elif payout_type == 'visible' %}
+        <table class="payroll-table">
+          <thead>
+            <tr>
+              <th>Кому</th>
+              <th>Родителей</th>
+              <th>Часы</th>
+              <th>Доход родителей</th>
+              <th>Статус оплат</th>
+              <th>Доля до удержаний</th>
+              <th>Удержания (бухгалтер + доп.)</th>
+              <th>Основание выплаты</th>
+              <th>К получению</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr class="visible-status-{{ row.payment_class }}">
+                <td>
+                  <strong>{{ row.name }}</strong>
+                  <div class="mt-1"><span class="role-pill role-visible">{{ row.role }}</span></div>
+                </td>
+                <td>{{ row.source_parents_count|int }}</td>
+                <td>{{ format_number(row.source_hours) }} ч</td>
+                <td class="amount">{{ format_money(row.source_income) }}</td>
+                <td>
+                  <strong>{{ row.payment_label }}</strong>
+                  <div class="payment-status-text">
+                    Оплачено: {{ row.paid_count }} · На проверке: {{ row.pending_count }} · Не оплачено: {{ row.unpaid_count }}
+                  </div>
+                </td>
+                <td class="amount">{{ format_money(row.gross_amount) }}</td>
+                <td>
+                  <strong class="text-danger">−{{ format_money(row.accountant_fee_share + row.extra_fee_share) }}</strong>
+                  <div class="muted-small">Бухгалтеру: {{ format_money(row.accountant_fee_share) }} · доп.: {{ format_money(row.extra_fee_share) }}</div>
+                </td>
+                <td>
+                  {{ row.basis }}
+                  {% if row.parents_count is defined %}
+                    <div class="muted-small">Как получатель: родителей {{ row.parents_count }}, часов {{ format_number(row.hours) }} ч</div>
+                  {% endif %}
+                </td>
+                <td class="amount">{{ format_money(row.amount) }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="10" class="text-center text-muted py-4">
+                  Нет нескрытых репетиторов. Даже нули некому показывать.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <table class="payroll-table">
+          <thead>
+            <tr>
+              <th>Кому</th>
+              <th>Роль</th>
+              <th>Основание</th>
+              <th>Часы</th>
+              <th>К выплате</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td>
+                  <strong>{{ row.name }}</strong>
+                  {% if row.parents_count is defined %}
+                    <div class="muted-small">Родителей: {{ row.parents_count }}</div>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if row.role == "Администратор" or row.role == "Админ" %}
+                    <span class="role-pill role-admin">{{ row.role }}</span>
+                  {% elif row.role == "Нескрытый репетитор" %}
+                    <span class="role-pill role-visible">{{ row.role }}</span>
+                  {% else %}
+                    <span class="role-pill role-hidden">{{ row.role }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {{ row.basis }}
+                  {% if row.extra_in is defined and (row.extra_in or row.extra_out) %}
+                    <div class="muted-small">
+                      Получено доп.: {{ format_money(row.extra_in) }},
+                      передано доп.: {{ format_money(row.extra_out) }}
+                    </div>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if row.hours is not none %}
+                    {{ format_number(row.hours) }} ч
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td class="amount">{{ format_money(row.amount) }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  Нет выплат за выбранный период. Денег нет, зато таблица честная.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

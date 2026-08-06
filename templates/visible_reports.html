@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="mb-2">Отчёты родителей</h1>
+      <p class="text-muted mb-0">
+        Сначала выберите репетитора, затем родителя. Внутри родителя доступны все отчётные недели,
+        модерация отчётов, статусы оплаты и чеки.
+      </p>
+    </div>
+  </div>
+
+  {% if not tutor_groups %}
+    <div class="alert alert-info rounded-4">
+      Пока нет выбранных репетиторов. Добавьте репетитора во вкладке «Репетиторы»,
+      затем назначьте ему родителей.
+    </div>
+  {% else %}
+    <div class="accordion report-tutor-accordion" id="tutorReportsAccordion">
+      {% for group in tutor_groups %}
+        {% set tutor_index = loop.index %}
+        <div class="accordion-item rounded-4 overflow-hidden shadow-sm border-0 mb-4">
+          <h2 class="accordion-header" id="tutorHeading{{ tutor_index }}">
+            <button
+              class="accordion-button collapsed {% if group.unread_count %}has-local-notifications{% endif %}"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#tutorCollapse{{ tutor_index }}"
+              aria-expanded="false"
+              aria-controls="tutorCollapse{{ tutor_index }}"
+            >
+              <div class="d-flex justify-content-between align-items-start gap-3 w-100">
+                <div class="d-flex flex-column">
+                  <span class="fw-bold">
+                    {{ group.tutor.name }}
+                  </span>
+                  <span class="small text-muted">
+                    Родителей: {{ group.parents|length }}
+                    · Ставка: {{ hidden_rate_label(group.pool) }}
+                  </span>
+                  <span class="d-flex flex-wrap gap-2 mt-2">
+                    <span class="badge bg-success rounded-pill">Оплачено: {{ group.payment_counter.paid }}</span>
+                    <span class="badge bg-warning text-dark rounded-pill">На проверке: {{ group.payment_counter.pending }}</span>
+                    <span class="badge bg-danger rounded-pill">Не оплачено: {{ group.payment_counter.unpaid }}</span>
+                  </span>
+                </div>
+                {% if group.unread_count %}
+                  <span class="local-notification-badge me-3">{{ group.unread_count }}</span>
+                {% endif %}
+              </div>
+            </button>
+          </h2>
+
+          <div
+            id="tutorCollapse{{ tutor_index }}"
+            class="accordion-collapse collapse"
+            aria-labelledby="tutorHeading{{ tutor_index }}"
+            data-bs-parent="#tutorReportsAccordion"
+          >
+            <div class="accordion-body">
+              {% if not group.parents %}
+                <div class="alert alert-light border rounded-4 mb-0">
+                  Этому репетитору пока не назначены родители.
+                </div>
+              {% else %}
+                <div class="accordion parent-report-accordion" id="parentsAccordion{{ tutor_index }}">
+                  {% for row in group.parents %}
+                    {% set parent_index = loop.index %}
+                    {% set parent = row.parent %}
+                    {% set assignment = row.assignment %}
+                    {% set parent_collapse_id = 'parentCollapse' ~ tutor_index ~ '_' ~ parent_index %}
+
+                    <div class="accordion-item rounded-4 overflow-hidden border mb-3">
+                      <h3 class="accordion-header" id="parentHeading{{ tutor_index }}_{{ parent_index }}">
+                        <button
+                          class="accordion-button collapsed {% if row.unread_count %}has-local-notifications{% endif %}"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#{{ parent_collapse_id }}"
+                          aria-expanded="false"
+                          aria-controls="{{ parent_collapse_id }}"
+                        >
+                          <div class="d-flex justify-content-between align-items-start gap-3 w-100">
+                            <div class="d-flex flex-column">
+                              <span class="fw-bold">
+                                {{ parent.name }}
+                              </span>
+                              <span class="small text-muted">
+                                Код: {{ assignment.parent_codename or 'не задан' }}
+                                · Цена часа: {{ format_money(get_parent_hour_price(parent.id, user.id)) }}
+                              </span>
+                              {% if row.has_published_reports %}
+                                <span class="mt-2">
+                                  {% if row.payment_state == 'paid' %}
+                                    <span class="badge bg-success rounded-pill">Оплачено</span>
+                                  {% elif row.payment_state == 'pending' %}
+                                    <span class="badge bg-warning text-dark rounded-pill">На проверке</span>
+                                  {% else %}
+                                    <span class="badge bg-danger rounded-pill">Не оплачено</span>
+                                  {% endif %}
+                                </span>
+                              {% endif %}
+                            </div>
+                            {% if row.unread_count %}
+                              <span class="local-notification-badge me-3">{{ row.unread_count }}</span>
+                            {% endif %}
+                          </div>
+                        </button>
+                      </h3>
+
+                      <div
+                        id="{{ parent_collapse_id }}"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="parentHeading{{ tutor_index }}_{{ parent_index }}"
+                        data-bs-parent="#parentsAccordion{{ tutor_index }}"
+                      >
+                        <div class="accordion-body">
+                          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                            <h5 class="mb-0">Отчётные недели</h5>
+
+                            <form method="post" action="{{ url_for('visible_tutor_create_week', parent_id=parent.id) }}">
+                {{ csrf_field() }}
+                              <button type="submit" class="btn btn-primary rounded-3">
+                                + Создать отчётную неделю
+                              </button>
+                            </form>
+                          </div>
+
+                          {% if not row.weeks %}
+                            <div class="alert alert-light border rounded-4 mb-0">
+                              Для этого родителя пока нет отчётов.
+                            </div>
+                          {% else %}
+                            <div class="row g-3">
+                              {% for week in row.weeks %}
+                                {% set finance = get_week_finance(week) %}
+
+                                <div class="col-xl-4 col-md-6">
+                                  <div class="card h-100 rounded-4 border-0 shadow-sm">
+                                    <div class="card-body d-flex flex-column">
+                                      <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                                        <div>
+                                          <div class="fw-bold text-dark">📚 Отчёт</div>
+                                          <div class="text-muted small">
+                                            {{ format_week_period(week) }}
+                                          </div>
+                                        </div>
+
+                                        {% if report_is_published(week) %}
+                                          <span class="badge {{ payment_status_badge_for_week(week) }}">
+                                            {{ payment_status_label_for_week(week) }}
+                                          </span>
+                                        {% else %}
+                                          <span class="badge bg-secondary">
+                                            Отчёт не отправлен
+                                          </span>
+                                        {% endif %}
+                                      </div>
+
+                                      <div class="text-dark mb-2">
+                                        <span class="fw-semibold">⭐ Оценка:</span>
+                                        {{ week.report.grade if week.report and week.report.grade else 'не выставлена' }}
+                                      </div>
+
+                                      <div class="text-dark mb-2">
+                                        <span class="fw-semibold">⏱ Часы:</span>
+                                        {{ format_number(finance.hours) }}
+                                      </div>
+
+                                      <div class="text-dark mb-2">
+                                        <span class="fw-semibold">💰 Сумма:</span>
+                                        {{ format_money(finance.parent_total) }}
+                                      </div>
+
+                                      {% if week.report and week.report.moderation_status == 'pending' %}
+                                        <div class="small text-warning fw-semibold mb-3">
+                                          Есть отчёт на модерации
+                                        </div>
+                                      {% endif %}
+
+                                      <div class="mt-auto d-flex gap-2 flex-wrap">
+                                        <a
+                                          class="btn btn-outline-primary btn-sm rounded-3"
+                                          href="{{ url_for('visible_tutor_week_report', week_id=week.id) }}"
+                                        >
+                                          Открыть
+                                        </a>
+
+                                        <form
+                                          method="post"
+                                          action="{{ url_for('visible_tutor_delete_week', week_id=week.id) }}"
+                                          onsubmit="return confirm('Удалить эту отчётную неделю вместе с отчётом и файлами?');"
+                                        >
+                {{ csrf_field() }}
+                                          <button type="submit" class="btn btn-outline-danger btn-sm rounded-3">
+                                            Удалить
+                                          </button>
+                                        </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              {% endfor %}
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

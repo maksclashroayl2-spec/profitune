@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="mb-2">Занятия</h1>
+      <p class="text-muted mb-0">Здесь показаны только репетиторы, с которыми вы работаете.</p>
+    </div>
+  </div>
+
+  {% if not tutors_data %}
+    <div class="alert alert-info">Пока нет назначенных репетиторов. После подтверждения заявки репетитор появится здесь.</div>
+  {% endif %}
+
+  <div class="accordion" id="parentLessonsAccordion">
+    {% for item in tutors_data %}
+      <div class="accordion-item mb-3 rounded-4 overflow-hidden shadow-sm">
+        <h2 class="accordion-header" id="headingTutor{{ item.tutor.id }}">
+          <button class="accordion-button collapsed {% if item.unread_count %}has-local-notifications{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTutor{{ item.tutor.id }}">
+            <span class="d-flex align-items-center gap-2 flex-wrap w-100">
+              <span>{{ item.tutor.name }}</span>
+              {% if item.tutor.tutor_profile %}
+                <span class="text-muted small">{{ item.tutor.tutor_profile.subjects }}</span>
+              {% endif %}
+              {% if item.unread_count %}
+                <span class="local-notification-badge ms-auto">{{ item.unread_count }}</span>
+              {% endif %}
+            </span>
+          </button>
+        </h2>
+
+        <div id="collapseTutor{{ item.tutor.id }}" class="accordion-collapse collapse" data-bs-parent="#parentLessonsAccordion">
+          <div class="accordion-body">
+            {% if item.weeks %}
+              <div class="row g-3">
+                {% for week in item.weeks %}
+                  <div class="col-xl-3 col-lg-4 col-md-6">
+                    <a class="text-decoration-none" href="{{ url_for('parent_week_report', week_id=week.id) }}">
+                      <div class="card h-100 rounded-4 border-0 shadow-sm report-week-card">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                            <div>
+                              <div class="fw-bold text-dark">📚 Отчёт</div>
+                              <div class="text-muted small">{{ format_week_period(week) }}</div>
+                            </div>
+                            {% if report_is_published(week) %}
+                              <span class="badge {{ payment_status_badge_for_week(week) }}">
+                                {{ payment_status_label_for_week(week) }}
+                              </span>
+                            {% else %}
+                              <span class="badge bg-secondary">
+                                Отчёт не отправлен
+                              </span>
+                            {% endif %}
+                          </div>
+
+                          <div class="text-dark">
+                            <span class="fw-semibold">⭐ Оценка:</span>
+                            {{ week.report.grade if week.report and week.report.grade else 'не выставлена' }}
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="alert alert-light border mb-0">Для этого репетитора отчёты пока не созданы.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

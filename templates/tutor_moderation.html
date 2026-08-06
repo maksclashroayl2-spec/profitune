@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .moderation-page {
+        max-width: 920px;
+        margin: 0 auto;
+    }
+
+    .moderation-card {
+        padding: 38px;
+        border-radius: 30px;
+        background:
+            radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.12), transparent 28%),
+            radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.10), transparent 30%),
+            rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
+        backdrop-filter: blur(12px);
+    }
+
+    .moderation-label {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 13px;
+        border-radius: 999px;
+        background: #fef3c7;
+        color: #92400e;
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 18px;
+    }
+
+    .moderation-title {
+        color: #0f172a;
+        font-size: 38px;
+        line-height: 1.15;
+        font-weight: 850;
+        letter-spacing: -0.03em;
+        margin: 0 0 14px;
+    }
+
+    .moderation-text {
+        color: #475569;
+        font-size: 17px;
+        line-height: 1.7;
+        margin: 0 0 22px;
+    }
+
+    .access-box {
+        display: grid;
+        gap: 12px;
+        margin-top: 24px;
+        padding: 22px;
+        border-radius: 24px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+    }
+
+    .access-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        color: #334155;
+        font-weight: 700;
+    }
+
+    .access-no {
+        color: #dc2626;
+        font-weight: 800;
+    }
+
+    .access-yes {
+        color: #15803d;
+        font-weight: 800;
+    }
+</style>
+
+<div class="moderation-page">
+    <section class="moderation-card">
+        {% if tutor.tutor_status == "blocked" %}
+            <div class="moderation-label">Доступ ограничен</div>
+            <h1 class="moderation-title">Анкета репетитора заблокирована</h1>
+            <p class="moderation-text">
+                Администратор временно ограничил доступ к функциям репетитора.
+                Редактирование анкеты, показ в каталоге и работа с заявками сейчас недоступны.
+            </p>
+        {% elif tutor.tutor_status == "approved" %}
+            <div class="moderation-label">Доступ настроен</div>
+            <h1 class="moderation-title">Анкета одобрена</h1>
+            <p class="moderation-text">
+                Администратор уже проверил анкету. Ниже показано, какие функции открыты для вашего аккаунта.
+            </p>
+        {% else %}
+            <div class="moderation-label">Заявка на модерации</div>
+            <h1 class="moderation-title">Заявка на создание анкеты отправлена</h1>
+            <p class="moderation-text">
+                Ваша анкета репетитора отправлена на подтверждение модерации.
+                После проверки администратор откроет доступ к нужным функциям: редактированию анкеты,
+                отображению в каталоге и работе с заявками родителей.
+            </p>
+        {% endif %}
+
+        <div class="access-box">
+            <div class="access-item">
+                <span>Редактирование своей анкеты</span>
+                <span class="{{ 'access-yes' if tutor.can_edit_profile else 'access-no' }}">
+                    {{ 'открыто' if tutor.can_edit_profile else 'закрыто' }}
+                </span>
+            </div>
+
+            <div class="access-item">
+                <span>Просмотр и обработка заявок</span>
+                <span class="{{ 'access-yes' if tutor.can_receive_bookings else 'access-no' }}">
+                    {{ 'открыто' if tutor.can_receive_bookings else 'закрыто' }}
+                </span>
+            </div>
+
+            <div class="access-item">
+                <span>Показ анкеты в каталоге</span>
+                <span class="{{ 'access-yes' if tutor.can_be_visible else 'access-no' }}">
+                    {{ 'открыто' if tutor.can_be_visible else 'закрыто' }}
+                </span>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% endblock %}

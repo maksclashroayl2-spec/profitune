@@ -1,0 +1,934 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .admin-page {
+        max-width: 1320px;
+        margin: 0 auto;
+    }
+
+    .admin-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background:
+            radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.12), transparent 28%),
+            radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.10), transparent 30%),
+            rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
+        backdrop-filter: blur(12px);
+        margin-bottom: 24px;
+    }
+
+    .admin-title {
+        color: #0f172a;
+        font-size: 40px;
+        line-height: 1.12;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin: 0 0 10px;
+    }
+
+    .admin-subtitle {
+        max-width: 780px;
+        color: #64748b;
+        font-size: 17px;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    .admin-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        flex: 0 0 auto;
+    }
+
+    .ps-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 10px 16px;
+        border-radius: 15px;
+        border: 0;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+        transition: 0.18s ease;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .ps-btn-main {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #7c3aed, #9333ea);
+        box-shadow: 0 12px 24px rgba(124, 58, 237, 0.24);
+    }
+
+    .ps-btn-main:hover {
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #6d28d9, #7e22ce);
+        box-shadow: 0 16px 30px rgba(124, 58, 237, 0.32);
+    }
+
+    .ps-btn-soft {
+        color: #334155 !important;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+    }
+
+    .ps-btn-soft:hover {
+        color: #111827 !important;
+        border-color: #7c3aed;
+        transform: translateY(-2px);
+    }
+
+    .ps-btn-danger {
+        color: #dc2626 !important;
+        background: #ffffff;
+        border: 1px solid #dc2626;
+    }
+
+    .ps-btn-danger:hover {
+        color: #ffffff !important;
+        background: #dc2626;
+        transform: translateY(-2px);
+    }
+
+    .ps-btn-green {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        box-shadow: 0 10px 22px rgba(22, 163, 74, 0.22);
+    }
+
+    .ps-btn-green:hover {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #15803d, #16a34a);
+        transform: translateY(-2px);
+    }
+
+    .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .admin-stat-card {
+        position: relative;
+        overflow: hidden;
+        padding: 24px;
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(12px);
+    }
+
+    .admin-stat-card::after {
+        content: "";
+        position: absolute;
+        right: -34px;
+        top: -34px;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.16), rgba(59, 130, 246, 0.12));
+    }
+
+    .admin-stat-label {
+        position: relative;
+        z-index: 2;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .admin-stat-value {
+        position: relative;
+        z-index: 2;
+        color: #0f172a;
+        font-size: 40px;
+        line-height: 1;
+        font-weight: 850;
+    }
+
+    .admin-stat-note {
+        position: relative;
+        z-index: 2;
+        margin-top: 10px;
+        color: #94a3b8;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .admin-section {
+        overflow: hidden;
+        margin-bottom: 24px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.09);
+        backdrop-filter: blur(12px);
+    }
+
+    .admin-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        padding: 24px 26px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .admin-section-title {
+        color: #0f172a;
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0 0 7px;
+        letter-spacing: -0.02em;
+    }
+
+    .admin-section-text {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .admin-table-wrap {
+        padding: 0 18px 18px;
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+    .admin-table th {
+        color: #334155;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 18px 10px;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+    .admin-table td {
+        color: #0f172a;
+        font-size: 15px;
+        font-weight: 400;
+        padding: 16px 10px;
+        border-bottom: 1px solid #edf2f7;
+        vertical-align: middle;
+    }
+
+    .admin-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .admin-table tbody tr {
+        transition: 0.18s ease;
+    }
+
+    .admin-table tbody tr:hover {
+        background: rgba(248, 250, 252, 0.9);
+    }
+
+    .admin-id {
+        width: 54px;
+        color: #64748b !important;
+        font-weight: 600 !important;
+    }
+
+    .admin-name {
+        color: #0f172a;
+        font-weight: 600 !important;
+    }
+
+    .admin-email,
+    .admin-comment {
+        color: #475569;
+    }
+
+    .admin-comment {
+        max-width: 260px;
+        line-height: 1.45;
+    }
+
+    .role-badge,
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 98px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+        border: 1px solid transparent;
+    }
+
+    .role-admin {
+        background: #fee2e2;
+        color: #b91c1c;
+        border-color: #fecaca;
+    }
+
+    .role-tutor {
+        background: #dbeafe;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+    }
+
+    .role-parent {
+        background: #f1f5f9;
+        color: #475569;
+        border-color: #cbd5e1;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+        border-color: #fde68a;
+    }
+
+    .status-approved {
+        background: #dcfce7;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+        border-color: #fecaca;
+    }
+
+    .access-list {
+        display: grid;
+        gap: 5px;
+        color: #475569;
+        font-size: 13px;
+        line-height: 1.35;
+    }
+
+    .access-on {
+        color: #15803d;
+        font-weight: 700;
+    }
+
+    .access-off {
+        color: #dc2626;
+        font-weight: 700;
+    }
+
+    .admin-btns {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .admin-status-form {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .admin-status-select {
+        min-width: 128px;
+        min-height: 40px;
+        border-radius: 14px;
+        border: 1px solid #cbd5e1;
+        padding: 8px 10px;
+        font-size: 13px;
+        outline: none;
+        background: #ffffff;
+        color: #0f172a;
+        transition: 0.18s ease;
+    }
+
+    .admin-status-select:focus {
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.13);
+    }
+
+    .admin-empty {
+        padding: 28px 10px !important;
+        color: #64748b !important;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .rating-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.13);
+        color: #15803d;
+        border: 1px solid rgba(34, 197, 94, 0.25);
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+
+    .admin-dropdown {
+        width: 100%;
+    }
+
+    .admin-dropdown > summary {
+        list-style: none;
+        cursor: pointer;
+    }
+
+    .admin-dropdown > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .admin-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        padding: 24px 26px;
+        border-bottom: 1px solid transparent;
+        transition: 0.18s ease;
+    }
+
+    .admin-dropdown[open] .admin-summary {
+        border-bottom-color: #e2e8f0;
+    }
+
+    .admin-summary:hover {
+        background: rgba(248, 250, 252, 0.86);
+    }
+
+    .admin-summary-right {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        flex: 0 0 auto;
+    }
+
+    .admin-count-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 34px;
+        padding: 0 12px;
+        border-radius: 999px;
+        color: #5b21b6;
+        background: rgba(124, 58, 237, 0.12);
+        border: 1px solid rgba(124, 58, 237, 0.20);
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+    .admin-chevron {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #334155;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        font-size: 18px;
+        font-weight: 900;
+        transition: 0.18s ease;
+    }
+
+    .admin-dropdown[open] .admin-chevron {
+        transform: rotate(180deg);
+        color: #ffffff;
+        background: linear-gradient(135deg, #7c3aed, #9333ea);
+        border-color: transparent;
+    }
+
+    .admin-collapsed-hint {
+        color: #94a3b8;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .admin-dropdown[open] .admin-collapsed-hint {
+        display: none;
+    }
+
+    @media (max-width: 992px) {
+        .admin-hero {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .admin-actions {
+            justify-content: flex-start;
+        }
+
+        .admin-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-hero,
+        .admin-section,
+        .admin-stat-card {
+            border-radius: 24px;
+            padding: 24px;
+        }
+
+        .admin-title {
+            font-size: 31px;
+        }
+
+        .admin-section-header {
+            padding: 22px;
+        }
+
+        .admin-table-wrap {
+            padding: 0 12px 14px;
+        }
+
+        .ps-btn {
+            width: 100%;
+        }
+
+        .admin-btns,
+        .admin-status-form {
+            justify-content: flex-start;
+        }
+    }
+</style>
+
+<div class="admin-page">
+
+    <section class="admin-hero">
+        <div>
+            <h1 class="admin-title">
+                Админ-панель
+            </h1>
+
+            <p class="admin-subtitle">
+                Управление пользователями, анкетами репетиторов и заявками на занятия.
+                Администратор может редактировать данные, менять статусы заявок и контролировать работу платформы.
+            </p>
+        </div>
+
+        <div class="admin-actions">
+            <a href="{{ url_for('index') }}" class="ps-btn ps-btn-soft">
+                На главную
+            </a>
+
+            <a href="{{ url_for('tutors') }}" class="ps-btn ps-btn-main">
+                Смотреть репетиторов
+            </a>
+        </div>
+    </section>
+
+    <section class="admin-stats">
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">
+                Всего пользователей
+            </div>
+            <div class="admin-stat-value">
+                {{ users_count }}
+            </div>
+            <div class="admin-stat-note">
+                Родители, репетиторы и администраторы
+            </div>
+        </div>
+
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">
+                Репетиторов
+            </div>
+            <div class="admin-stat-value">
+                {{ tutors_count }}
+            </div>
+            <div class="admin-stat-note">
+                Анкеты преподавателей на платформе
+            </div>
+        </div>
+
+        <div class="admin-stat-card">
+            <div class="admin-stat-label">
+                Заявок на занятия
+            </div>
+            <div class="admin-stat-value">
+                {{ bookings_count }}
+            </div>
+            <div class="admin-stat-note">
+                Все созданные заявки родителей
+            </div>
+        </div>
+    </section>
+
+    <section class="admin-section">
+        <details class="admin-dropdown">
+            <summary class="admin-summary">
+                <div>
+                    <h2 class="admin-section-title">
+                        Пользователи
+                    </h2>
+
+                    <p class="admin-section-text">
+                        Список всех аккаунтов, зарегистрированных в системе.
+                    </p>
+                </div>
+
+                <div class="admin-summary-right">
+                    <span class="admin-count-pill">{{ users_count }}</span>
+                    <span class="admin-collapsed-hint">Нажмите, чтобы открыть</span>
+                    <span class="admin-chevron">⌄</span>
+                </div>
+            </summary>
+
+            <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя</th>
+                        <th>Email</th>
+                        <th>Роль</th>
+                        <th>Доступ репетитора</th>
+                        <th>Дата регистрации</th>
+                        <th class="text-end">Действия</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in users %}
+                    <tr>
+                        <td class="admin-id">
+                            {{ item.id }}
+                        </td>
+
+                        <td class="admin-name">
+                            {{ item.name }}
+                        </td>
+
+                        <td class="admin-email">
+                            {{ item.email }}
+                        </td>
+
+                        <td>
+                            {% if item.role == "admin" %}
+                                <span class="role-badge role-admin">Админ</span>
+                            {% elif item.role == "tutor" %}
+                                <span class="role-badge role-tutor">Репетитор</span>
+                            {% else %}
+                                <span class="role-badge role-parent">Родитель</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if item.role == "tutor" %}
+                                {% if item.tutor_status == "approved" %}
+                                    <span class="status-badge status-approved">Одобрен</span>
+                                {% elif item.tutor_status == "blocked" %}
+                                    <span class="status-badge status-cancelled">Заблокирован</span>
+                                {% else %}
+                                    <span class="status-badge status-pending">На модерации</span>
+                                {% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if item.created_at %}
+                                {{ item.created_at.strftime("%d.%m.%Y %H:%M") }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="admin-btns">
+                                <a class="ps-btn ps-btn-main"
+                                   href="{{ url_for('admin_edit_user', user_id=item.id) }}">
+                                    Редактировать
+                                </a>
+
+                                {% if item.role != "admin" %}
+                                    <a class="ps-btn ps-btn-danger"
+                                       href="{{ url_for('admin_delete_user', user_id=item.id) }}"
+                                       onclick="return confirm('Удалить пользователя {{ item.name }}?');">
+                                        Удалить
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="admin-empty">
+                            Пользователи отсутствуют.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </details>
+    </section>
+
+    <section class="admin-section">
+        <details class="admin-dropdown">
+            <summary class="admin-summary">
+                <div>
+                    <h2 class="admin-section-title">
+                        Анкеты репетиторов
+                    </h2>
+
+                    <p class="admin-section-text">
+                        Управление предметами, рейтингом, модерацией и описанием преподавателей.
+                    </p>
+                </div>
+
+                <div class="admin-summary-right">
+                    <span class="admin-count-pill">{{ tutors_count }}</span>
+                    <span class="admin-collapsed-hint">Нажмите, чтобы открыть</span>
+                    <span class="admin-chevron">⌄</span>
+                </div>
+            </summary>
+
+            <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Имя</th>
+                        <th>Предметы</th>
+                        <th>Рейтинг</th>
+                        <th>Статус</th>
+                        <th>Функции</th>
+                        <th class="text-end">Действия</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for tutor in tutors %}
+                    <tr>
+                        <td class="admin-name">
+                            {{ tutor.name }}
+                        </td>
+
+                        <td>
+                            {{ tutor.subjects or "Не указано" }}
+                        </td>
+
+                        <td>
+                            <span class="rating-pill">
+                                ★
+                                {% if tutor.rating %}
+                                    {{ "%.1f"|format(tutor.rating) }}
+                                {% else %}
+                                    0.0
+                                {% endif %}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if tutor.tutor_status == "approved" %}
+                                <span class="status-badge status-approved">Одобрен</span>
+                            {% elif tutor.tutor_status == "blocked" %}
+                                <span class="status-badge status-cancelled">Заблокирован</span>
+                            {% else %}
+                                <span class="status-badge status-pending">На модерации</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="access-list">
+                                <span class="{{ 'access-on' if tutor.can_edit_profile else 'access-off' }}">
+                                    Анкета: {{ 'да' if tutor.can_edit_profile else 'нет' }}
+                                </span>
+                                <span class="{{ 'access-on' if tutor.can_receive_bookings else 'access-off' }}">
+                                    Заявки: {{ 'да' if tutor.can_receive_bookings else 'нет' }}
+                                </span>
+                                <span class="{{ 'access-on' if tutor.can_be_visible else 'access-off' }}">
+                                    Каталог: {{ 'да' if tutor.can_be_visible else 'нет' }}
+                                </span>
+                                <span class="{{ 'access-off' if tutor.is_hidden else 'access-on' }}">
+                                    Формат: {{ 'по коду' if tutor.is_hidden else 'в каталоге' }}
+                                </span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="admin-btns">
+                                <a class="ps-btn ps-btn-main"
+                                   href="{{ url_for('admin_edit_tutor', tutor_id=tutor.id) }}">
+                                    Редактировать
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="admin-empty">
+                            Анкеты репетиторов отсутствуют.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </details>
+    </section>
+
+    <section class="admin-section">
+        <details class="admin-dropdown">
+            <summary class="admin-summary">
+                <div>
+                    <h2 class="admin-section-title">
+                        Заявки на занятия
+                    </h2>
+
+                    <p class="admin-section-text">
+                        Просмотр, подтверждение, отмена и удаление заявок от родителей.
+                    </p>
+                </div>
+
+                <div class="admin-summary-right">
+                    <span class="admin-count-pill">{{ bookings_count }}</span>
+                    <span class="admin-collapsed-hint">Нажмите, чтобы открыть</span>
+                    <span class="admin-chevron">⌄</span>
+                </div>
+            </summary>
+
+            <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Родитель</th>
+                        <th>Репетитор</th>
+                        <th>Дата</th>
+                        <th>Время</th>
+                        <th>Комментарий</th>
+                        <th>Статус</th>
+                        <th class="text-end">Действия</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td class="admin-id">
+                            {{ booking.id }}
+                        </td>
+
+                        <td class="admin-name">
+                            {% if booking.parent %}
+                                {{ booking.parent.name }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if booking.tutor %}
+                                {{ booking.tutor.name }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ booking.lesson_date }}
+                        </td>
+
+                        <td>
+                            {{ booking.lesson_time }}
+                        </td>
+
+                        <td class="admin-comment">
+                            {{ booking.comment or "—" }}
+                        </td>
+
+                        <td>
+                            {% if booking.status == "approved" %}
+                                <span class="status-badge status-approved">Одобрена</span>
+                            {% elif booking.status == "cancelled" %}
+                                <span class="status-badge status-cancelled">Отменена</span>
+                            {% else %}
+                                <span class="status-badge status-pending">Ожидает</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="admin-btns">
+                                <form method="post"
+                                      action="{{ url_for('admin_update_booking_status', booking_id=booking.id) }}"
+                                      class="admin-status-form">
+                {{ csrf_field() }}
+
+                                    <select name="status" class="admin-status-select">
+                                        <option value="pending" {% if booking.status == "pending" %}selected{% endif %}>
+                                            Ожидает
+                                        </option>
+
+                                        <option value="approved" {% if booking.status == "approved" %}selected{% endif %}>
+                                            Одобрена
+                                        </option>
+
+                                        <option value="cancelled" {% if booking.status == "cancelled" %}selected{% endif %}>
+                                            Отменена
+                                        </option>
+                                    </select>
+
+                                    <button type="submit" class="ps-btn ps-btn-green">
+                                        Сохранить
+                                    </button>
+                                </form>
+
+                                <a class="ps-btn ps-btn-danger"
+                                   href="{{ url_for('admin_delete_booking', booking_id=booking.id) }}"
+                                   onclick="return confirm('Удалить заявку?');">
+                                    Удалить
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="admin-empty">
+                            Заявки отсутствуют.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </details>
+    </section>
+
+</div>
+
+{% endblock %}

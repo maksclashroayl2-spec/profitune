@@ -1,0 +1,597 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .edit-profile-page {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .edit-profile-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background:
+            radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.12), transparent 28%),
+            radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.10), transparent 30%),
+            rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
+        backdrop-filter: blur(12px);
+        margin-bottom: 24px;
+    }
+
+    .edit-profile-title {
+        color: #0f172a;
+        font-size: 40px;
+        line-height: 1.12;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin: 0 0 10px;
+    }
+
+    .edit-profile-text {
+        max-width: 760px;
+        color: #64748b;
+        font-size: 17px;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    .edit-profile-badge {
+        flex: 0 0 auto;
+        padding: 14px 18px;
+        border-radius: 22px;
+        background: #111827;
+        color: #ffffff;
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
+    }
+
+    .edit-profile-badge-title {
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .edit-profile-badge-text {
+        color: #cbd5e1;
+        font-size: 13px;
+    }
+
+    .edit-profile-layout {
+        display: grid;
+        grid-template-columns: 340px minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+    }
+
+    .avatar-panel,
+    .form-panel {
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.09);
+        backdrop-filter: blur(12px);
+    }
+
+    .avatar-panel {
+        position: sticky;
+        top: 118px;
+        padding: 28px;
+        text-align: center;
+    }
+
+    .avatar-preview-wrap {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 18px;
+    }
+
+    .avatar-preview {
+        width: 180px;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 34px;
+        border: 5px solid #ffffff;
+        background: #f8fafc;
+        box-shadow: 0 18px 35px rgba(15, 23, 42, 0.16);
+    }
+
+    .avatar-panel-title {
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0 0 8px;
+    }
+
+    .avatar-panel-text {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.55;
+        margin: 0 0 20px;
+    }
+
+    .avatar-note {
+        padding: 14px;
+        border-radius: 20px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+        text-align: left;
+    }
+
+    .form-panel {
+        overflow: hidden;
+    }
+
+    .form-panel-header {
+        padding: 26px 28px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .form-panel-title {
+        color: #0f172a;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+    }
+
+    .form-panel-text {
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .edit-form {
+        padding: 28px;
+        display: grid;
+        gap: 20px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-field label {
+        display: block;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 7px;
+    }
+
+    .form-field .form-control,
+    .form-field .form-select {
+        min-height: 48px;
+        border-radius: 16px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        padding: 12px 14px;
+        transition: 0.18s ease;
+    }
+
+    .form-field textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .form-field .form-control:focus,
+    .form-field .form-select:focus {
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.13);
+    }
+
+    .form-hint {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+        margin-top: 7px;
+    }
+
+    .upload-area {
+        position: relative;
+        display: block;
+        padding: 22px;
+        border-radius: 22px;
+        border: 2px dashed #a78bfa;
+        background: #faf5ff;
+        cursor: pointer;
+        transition: 0.18s ease;
+    }
+
+    .upload-area:hover {
+        background: #f3e8ff;
+        border-color: #7c3aed;
+    }
+
+    .upload-area input {
+        width: 100%;
+    }
+
+    .upload-title {
+        color: #4c1d95;
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .upload-text {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding-top: 6px;
+        border-top: 1px solid #e2e8f0;
+        margin-top: 4px;
+    }
+
+    .ps-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 12px 20px;
+        border-radius: 16px;
+        border: 0;
+        text-decoration: none;
+        font-weight: 800;
+        transition: 0.18s ease;
+        cursor: pointer;
+    }
+
+    .ps-btn-main {
+        color: #ffffff;
+        background: linear-gradient(135deg, #7c3aed, #9333ea);
+        box-shadow: 0 14px 28px rgba(124, 58, 237, 0.26);
+    }
+
+    .ps-btn-main:hover {
+        color: #ffffff;
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #6d28d9, #7e22ce);
+        box-shadow: 0 18px 34px rgba(124, 58, 237, 0.34);
+    }
+
+    .ps-btn-soft {
+        color: #334155;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+    }
+
+    .ps-btn-soft:hover {
+        color: #111827;
+        border-color: #7c3aed;
+        transform: translateY(-2px);
+    }
+
+    .profile-tips {
+        margin-top: 24px;
+        padding: 24px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #111827, #1e1b4b);
+        color: #ffffff;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+    }
+
+    .profile-tips-title {
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0 0 14px;
+    }
+
+    .profile-tips-list {
+        display: grid;
+        gap: 10px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .profile-tips-list li {
+        display: flex;
+        gap: 10px;
+        color: #dbeafe;
+        line-height: 1.55;
+    }
+
+    .profile-tips-list li::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        flex: 0 0 9px;
+        margin-top: 8px;
+        border-radius: 50%;
+        background: #fbbf24;
+    }
+
+    @media (max-width: 992px) {
+        .edit-profile-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .avatar-panel {
+            position: static;
+        }
+
+        .edit-profile-hero {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .edit-profile-hero,
+        .avatar-panel,
+        .form-panel,
+        .profile-tips {
+            border-radius: 24px;
+            padding: 24px;
+        }
+
+        .edit-profile-title {
+            font-size: 31px;
+        }
+
+        .form-panel-header,
+        .edit-form {
+            padding: 24px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+        .ps-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="edit-profile-page">
+
+    <section class="edit-profile-hero">
+        <div>
+            <h1 class="edit-profile-title">
+                Редактирование профиля репетитора
+            </h1>
+
+            <p class="edit-profile-text">
+                Заполните анкету преподавателя: укажите предметы, описание, опыт работы
+                и загрузите фотографию для отображения в каталоге.
+            </p>
+        </div>
+
+        <div class="edit-profile-badge">
+            <div class="edit-profile-badge-title">
+                Профиль репетитора
+            </div>
+
+            <div class="edit-profile-badge-text">
+                данные отображаются в каталоге
+            </div>
+        </div>
+    </section>
+
+    <div class="edit-profile-layout">
+
+        <aside>
+            <section class="avatar-panel">
+                <div class="avatar-preview-wrap">
+                    <img
+                        src="{{ url_for('static', filename='img/avatars/' ~ profile.avatar) }}"
+                        alt="Аватар репетитора"
+                        class="avatar-preview"
+                        id="avatarPreview"
+                    >
+                </div>
+
+                <h2 class="avatar-panel-title">
+                    Фотография профиля
+                </h2>
+
+                <p class="avatar-panel-text">
+                    Фото используется в карточке репетитора и на странице анкеты.
+                </p>
+
+                <div class="avatar-note">
+                    Можно выбрать стандартный аватар или загрузить собственную фотографию.
+                    Если загрузить новую фотографию, она будет сохранена после нажатия кнопки.
+                </div>
+            </section>
+
+            <section class="profile-tips">
+                <h2 class="profile-tips-title">
+                    Как заполнить анкету лучше
+                </h2>
+
+                <ul class="profile-tips-list">
+                    <li>загрузите понятную фотографию или нейтральный аватар;</li>
+                    <li>укажите все предметы, по которым проводите занятия;</li>
+                    <li>в описании напишите про формат обучения и подготовку к экзаменам;</li>
+                    <li>добавьте сведения об опыте и подходе к родителья.</li>
+                </ul>
+            </section>
+        </aside>
+
+        <section class="form-panel">
+            <div class="form-panel-header">
+                <h2 class="form-panel-title">
+                    Данные анкеты
+                </h2>
+
+                <p class="form-panel-text">
+                    Эти сведения будут видны родителям при просмотре каталога репетиторов.
+                </p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="edit-form">
+                {{ csrf_field() }}
+
+                <div class="form-grid">
+
+                    <div class="form-field full">
+                        <label for="avatar_file">
+                            Загрузить свою фотографию
+                        </label>
+
+                        <div class="upload-area">
+                            <div class="upload-title">
+                                Выберите изображение
+                            </div>
+
+                            <div class="upload-text">
+                                Поддерживаются форматы PNG, JPG, JPEG, WEBP. Максимальный размер зависит от настроек сайта.
+                            </div>
+
+                            <input
+                                type="file"
+                                class="form-control mt-3"
+                                id="avatar_file"
+                                name="avatar_file"
+                                accept="image/png,image/jpeg,image/jpg,image/webp"
+                            >
+                        </div>
+
+                        <div class="form-hint">
+                            Если выбрать файл, он заменит текущий аватар после сохранения.
+                        </div>
+                    </div>
+
+                    <div class="form-field full">
+                        <label for="avatar">
+                            Или выбрать стандартный аватар
+                        </label>
+
+                        <select class="form-select" id="avatar" name="avatar">
+                            {% for avatar in avatars %}
+                                <option value="{{ avatar }}" {% if profile.avatar == avatar %}selected{% endif %}>
+                                    {{ avatar }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <div class="form-hint">
+                            Этот вариант используется, если новая фотография не выбрана.
+                        </div>
+                    </div>
+
+                    <div class="form-field full">
+                        <label for="subjects">
+                            Предметы
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="subjects"
+                            name="subjects"
+                            value="{{ profile.subjects }}"
+                            placeholder="Например: математика, физика, подготовка к ЕГЭ"
+                        >
+
+                        <div class="form-hint">
+                            Можно указать несколько предметов через запятую.
+                        </div>
+                    </div>
+
+                    <div class="form-field full">
+                        <label for="bio">
+                            Описание
+                        </label>
+
+                        <textarea
+                            class="form-control"
+                            id="bio"
+                            name="bio"
+                            rows="5"
+                            placeholder="Расскажите об опыте, формате занятий и подходе к обучению"
+                        >{{ profile.bio }}</textarea>
+                    </div>
+
+                    <div class="form-field full">
+                        <label for="experience_years">
+                            Опыт, лет
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="experience_years"
+                            name="experience_years"
+                            min="0"
+                            value="{{ profile.experience_years }}"
+                            placeholder="Например: 5"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('tutor_profile', tutor_id=user.id) }}" class="ps-btn ps-btn-soft">
+                        Открыть профиль
+                    </a>
+
+                    <button type="submit" class="ps-btn ps-btn-main">
+                        Сохранить изменения
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+    </div>
+
+</div>
+
+<script>
+    const avatarInput = document.getElementById("avatar_file");
+    const avatarPreview = document.getElementById("avatarPreview");
+
+    if (avatarInput && avatarPreview) {
+        avatarInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                avatarPreview.src = event.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,858 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .admin-edit-page {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .admin-edit-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background:
+            radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.12), transparent 28%),
+            radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.10), transparent 30%),
+            rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
+        backdrop-filter: blur(12px);
+        margin-bottom: 24px;
+    }
+
+    .admin-edit-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #7c3aed;
+        text-decoration: none;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .admin-edit-back:hover {
+        color: #4c1d95;
+    }
+
+    .admin-edit-title {
+        color: #0f172a;
+        font-size: 40px;
+        line-height: 1.12;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin: 0 0 10px;
+    }
+
+    .admin-edit-text {
+        max-width: 760px;
+        color: #64748b;
+        font-size: 17px;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    .admin-edit-badge {
+        flex: 0 0 auto;
+        padding: 14px 18px;
+        border-radius: 22px;
+        background: #111827;
+        color: #ffffff;
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
+    }
+
+    .admin-edit-badge-title {
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .admin-edit-badge-text {
+        color: #cbd5e1;
+        font-size: 13px;
+    }
+
+    .admin-edit-layout {
+        display: grid;
+        grid-template-columns: 340px minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+    }
+
+    .avatar-panel,
+    .edit-panel,
+    .admin-tips {
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.09);
+        backdrop-filter: blur(12px);
+    }
+
+    .avatar-panel {
+        position: sticky;
+        top: 118px;
+        padding: 28px;
+        text-align: center;
+    }
+
+    .avatar-preview-wrap {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 18px;
+    }
+
+    .avatar-preview {
+        width: 180px;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 34px;
+        border: 5px solid #ffffff;
+        background: #f8fafc;
+        box-shadow: 0 18px 35px rgba(15, 23, 42, 0.16);
+    }
+
+    .avatar-panel-title {
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0 0 8px;
+    }
+
+    .avatar-panel-text {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.55;
+        margin: 0 0 20px;
+    }
+
+    .avatar-note {
+        padding: 14px;
+        border-radius: 20px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+        text-align: left;
+    }
+
+    .admin-tips {
+        margin-top: 24px;
+        padding: 24px;
+        background: linear-gradient(135deg, #111827, #1e1b4b);
+        color: #ffffff;
+    }
+
+    .admin-tips-title {
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0 0 14px;
+    }
+
+    .admin-tips-list {
+        display: grid;
+        gap: 10px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .admin-tips-list li {
+        display: flex;
+        gap: 10px;
+        color: #dbeafe;
+        line-height: 1.55;
+    }
+
+    .admin-tips-list li::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        flex: 0 0 9px;
+        margin-top: 8px;
+        border-radius: 50%;
+        background: #fbbf24;
+    }
+
+    .edit-panel {
+        overflow: hidden;
+    }
+
+    .edit-panel-header {
+        padding: 26px 28px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .edit-panel-title {
+        color: #0f172a;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+    }
+
+    .edit-panel-text {
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .admin-edit-form {
+        padding: 28px;
+        display: grid;
+        gap: 22px;
+    }
+
+    .edit-card {
+        padding: 24px;
+        border-radius: 26px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    .edit-card-title {
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0 0 18px;
+        letter-spacing: -0.02em;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-field {
+        display: block;
+    }
+
+    .form-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-field label,
+    .field-label {
+        display: block;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 7px;
+    }
+
+    .form-field input,
+    .form-field textarea,
+    .form-field select,
+    .form-control-admin {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 16px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        padding: 12px 14px;
+        transition: 0.18s ease;
+        outline: none;
+    }
+
+    .form-field textarea {
+        min-height: 150px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .form-field input:focus,
+    .form-field textarea:focus,
+    .form-field select:focus,
+    .form-control-admin:focus {
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.13);
+    }
+
+    .form-hint {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+        margin-top: 7px;
+    }
+
+    .upload-area {
+        position: relative;
+        display: block;
+        padding: 22px;
+        border-radius: 22px;
+        border: 2px dashed #a78bfa;
+        background: #faf5ff;
+        cursor: pointer;
+        transition: 0.18s ease;
+    }
+
+    .upload-area:hover {
+        background: #f3e8ff;
+        border-color: #7c3aed;
+    }
+
+    .upload-title {
+        color: #4c1d95;
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .upload-text {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+    }
+
+    .ps-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 12px 20px;
+        border-radius: 16px;
+        border: 0;
+        text-decoration: none;
+        font-weight: 800;
+        transition: 0.18s ease;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .ps-btn-main {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #7c3aed, #9333ea);
+        box-shadow: 0 14px 28px rgba(124, 58, 237, 0.26);
+    }
+
+    .ps-btn-main:hover {
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #6d28d9, #7e22ce);
+        box-shadow: 0 18px 34px rgba(124, 58, 237, 0.34);
+    }
+
+    .ps-btn-soft {
+        color: #334155 !important;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+    }
+
+    .ps-btn-soft:hover {
+        color: #111827 !important;
+        border-color: #7c3aed;
+        transform: translateY(-2px);
+    }
+
+    .admin-form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding-top: 6px;
+        border-top: 1px solid #e2e8f0;
+        margin-top: 4px;
+    }
+
+    @media (max-width: 992px) {
+        .admin-edit-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .avatar-panel {
+            position: static;
+        }
+
+        .admin-edit-hero {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-edit-hero,
+        .avatar-panel,
+        .edit-panel,
+        .admin-tips {
+            border-radius: 24px;
+            padding: 24px;
+        }
+
+        .admin-edit-title {
+            font-size: 31px;
+        }
+
+        .edit-panel-header,
+        .admin-edit-form {
+            padding: 24px;
+        }
+
+        .edit-card {
+            padding: 20px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-field.full {
+            grid-column: auto;
+        }
+
+        .admin-form-actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+        .ps-btn {
+            width: 100%;
+        }
+    }
+
+
+    .visibility-choice {
+        display: grid;
+        gap: 12px;
+    }
+
+    .visibility-option {
+        display: grid;
+        grid-template-columns: 26px 1fr;
+        gap: 12px;
+        align-items: start;
+        padding: 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(203, 213, 225, 0.95);
+        background: rgba(255, 255, 255, 0.88);
+        cursor: pointer;
+        transition: 0.18s ease;
+    }
+
+    .visibility-option:hover,
+    .visibility-option.is-selected {
+        border-color: rgba(124, 58, 237, 0.55);
+        background: rgba(245, 243, 255, 0.95);
+        box-shadow: 0 12px 28px rgba(124, 58, 237, 0.12);
+    }
+
+    .visibility-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .visibility-check {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #cbd5e1;
+        background: #ffffff;
+        position: relative;
+        margin-top: 2px;
+    }
+
+    .visibility-option input:checked + .visibility-check {
+        border-color: #7c3aed;
+        background: linear-gradient(135deg, #7c3aed, #2563eb);
+    }
+
+    .visibility-option input:checked + .visibility-check::after {
+        content: "";
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        left: 50%;
+        top: 50%;
+        border-radius: 50%;
+        background: #ffffff;
+        transform: translate(-50%, -50%);
+    }
+
+    .visibility-option strong {
+        display: block;
+        color: #0f172a;
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .visibility-option small {
+        display: block;
+        color: #64748b;
+        line-height: 1.45;
+    }
+
+</style>
+
+<div class="admin-edit-page">
+
+    <section class="admin-edit-hero">
+        <div>
+            <a href="{{ url_for('admin') }}" class="admin-edit-back">
+                ← Назад в админ-панель
+            </a>
+
+            <h1 class="admin-edit-title">
+                Редактирование анкеты репетитора
+            </h1>
+
+            <p class="admin-edit-text">
+                Администратор может изменить основные данные репетитора, описание,
+                рейтинг, настройки доступа и фотографию профиля.
+            </p>
+        </div>
+
+        <div class="admin-edit-badge">
+            <div class="admin-edit-badge-title">
+                Анкета преподавателя
+            </div>
+            <div class="admin-edit-badge-text">
+                данные отображаются в каталоге
+            </div>
+        </div>
+    </section>
+
+    <div class="admin-edit-layout">
+
+        <aside>
+            <section class="avatar-panel">
+                <div class="avatar-preview-wrap">
+                    <img
+                        src="{{ url_for('static', filename='img/avatars/' ~ profile.avatar) }}"
+                        alt="Аватар репетитора"
+                        class="avatar-preview"
+                        id="avatarPreview"
+                    >
+                </div>
+
+                <h2 class="avatar-panel-title">
+                    Фото профиля
+                </h2>
+
+                <p class="avatar-panel-text">
+                    Изображение используется в каталоге репетиторов и на странице анкеты.
+                </p>
+
+                <div class="avatar-note">
+                    Можно выбрать стандартный аватар или загрузить собственную фотографию.
+                    Новое изображение сохранится после отправки формы.
+                </div>
+            </section>
+
+            <section class="admin-tips">
+                <h2 class="admin-tips-title">
+                    Подсказка администратору
+                </h2>
+
+                <ul class="admin-tips-list">
+                    <li>рейтинг указывается числом от 0 до 5;</li>
+                    <li>проверяйте корректность предметов и описания анкеты;</li>
+                    <li>описание должно быть понятным для родителя;</li>
+                    <li>фотография должна быть нейтральной и читаемой.</li>
+                </ul>
+            </section>
+        </aside>
+
+        <section class="edit-panel">
+            <div class="edit-panel-header">
+                <h2 class="edit-panel-title">
+                    Данные анкеты
+                </h2>
+
+                <p class="edit-panel-text">
+                    Изменения применятся после нажатия кнопки “Сохранить изменения”.
+                </p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="admin-edit-form">
+                {{ csrf_field() }}
+
+                <div class="edit-card">
+                    <h2 class="edit-card-title">
+                        Основная информация
+                    </h2>
+
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="name">Имя репетитора</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value="{{ edited_user.name }}"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-field">
+                            <label for="email">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value="{{ edited_user.email }}"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-field full">
+                            <label for="subjects">Предметы</label>
+                            <input
+                                type="text"
+                                id="subjects"
+                                name="subjects"
+                                value="{{ profile.subjects }}"
+                                placeholder="Например: математика, физика, подготовка к ЕГЭ"
+                            >
+                            <div class="form-hint">
+                                Можно указать несколько предметов через запятую.
+                            </div>
+                        </div>
+
+                        <div class="form-field full">
+                            <label for="bio">Описание репетитора</label>
+                            <textarea
+                                id="bio"
+                                name="bio"
+                                rows="8"
+                                placeholder="Описание опыта, подхода к обучению и формата занятий"
+                            >{{ profile.bio }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-card">
+                    <h2 class="edit-card-title">
+                        Опыт и рейтинг
+                    </h2>
+
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="experience_years">Опыт работы, лет</label>
+                            <input
+                                type="number"
+                                id="experience_years"
+                                name="experience_years"
+                                value="{{ profile.experience_years }}"
+                                min="0"
+                            >
+                        </div>
+
+                        <div class="form-field">
+                            <label for="rating">Рейтинг</label>
+                            <input
+                                type="number"
+                                id="rating"
+                                name="rating"
+                                value="{{ profile.rating }}"
+                                min="0"
+                                max="5"
+                                step="0.1"
+                            >
+                            <div class="form-hint">
+                                Значение от 0.0 до 5.0.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-card">
+                    <h2 class="edit-card-title">
+                        Модерация и доступ
+                    </h2>
+
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="tutor_status">Статус анкеты</label>
+                            <select id="tutor_status" name="tutor_status">
+                                <option value="pending" {% if tutor.tutor_status == "pending" %}selected{% endif %}>
+                                    На модерации
+                                </option>
+                                <option value="approved" {% if tutor.tutor_status == "approved" %}selected{% endif %}>
+                                    Одобрена
+                                </option>
+                                <option value="blocked" {% if tutor.tutor_status == "blocked" %}selected{% endif %}>
+                                    Заблокирована
+                                </option>
+                            </select>
+                            <div class="form-hint">
+                                При статусе “На модерации” или “Заблокирована” функции репетитора закрываются.
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label>Тип отображения</label>
+
+                            <div class="visibility-choice">
+                                <label class="visibility-option {% if not tutor.is_hidden %}is-selected{% endif %}">
+                                    <input
+                                        type="radio"
+                                        name="visibility_mode"
+                                        value="catalog"
+                                        {% if not tutor.is_hidden %}checked{% endif %}
+                                    >
+                                    <span class="visibility-check"></span>
+                                    <span>
+                                        <strong>Репетитор в каталоге</strong>
+                                        <small>Анкета видна родителям, заявки доступны.</small>
+                                    </span>
+                                </label>
+
+                                <label class="visibility-option {% if tutor.is_hidden %}is-selected{% endif %}">
+                                    <input
+                                        type="radio"
+                                        name="visibility_mode"
+                                        value="code"
+                                        {% if tutor.is_hidden %}checked{% endif %}
+                                    >
+                                    <span class="visibility-check"></span>
+                                    <span>
+                                        <strong>Репетитор по коду</strong>
+                                        <small>Не отображается в каталоге, работает через назначение.</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-card">
+                    <h2 class="edit-card-title">
+                        Фотография профиля
+                    </h2>
+
+                    <div class="form-grid">
+                        <div class="form-field full">
+                            <label for="avatar_file">Загрузить свою фотографию</label>
+
+                            <div class="upload-area">
+                                <div class="upload-title">
+                                    Выберите изображение
+                                </div>
+
+                                <div class="upload-text">
+                                    Поддерживаются форматы PNG, JPG, JPEG, WEBP.
+                                    Если выбрать файл, он заменит текущий аватар после сохранения.
+                                </div>
+
+                                <input
+                                    type="file"
+                                    class="form-control-admin"
+                                    id="avatar_file"
+                                    name="avatar_file"
+                                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-field full">
+                            <label for="avatar">Или выбрать стандартный аватар</label>
+
+                            <select name="avatar" id="avatar">
+                                {% for avatar in avatars %}
+                                    <option value="{{ avatar }}" {% if profile.avatar == avatar %}selected{% endif %}>
+                                        {{ avatar }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <div class="form-hint">
+                                Этот вариант используется, если новая фотография не выбрана.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if not tutor.is_hidden %}
+                    <div class="edit-card">
+                        <h2 class="edit-card-title">
+                            Финансы
+                        </h2>
+
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label for="admin_owner_id">К какому админу относится</label>
+                                <select id="admin_owner_id" name="admin_owner_id">
+                                    <option value="">Не выбран</option>
+                                    {% for admin_item in admins %}
+                                        <option value="{{ admin_item.id }}" {% if tutor.admin_owner_id == admin_item.id %}selected{% endif %}>
+                                            {{ admin_item.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-hint">
+                                    Остаток по этому репетитору будет относиться к выбранному админу.
+                                </div>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="profit_percent">Процент репетитора</label>
+                                <input
+                                    type="number"
+                                    id="profit_percent"
+                                    name="profit_percent"
+                                    value="{{ profile.profit_percent or 0 }}"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                >
+                                <div class="form-hint">
+                                    Процент от оплаченных денег родителей этого репетитора.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="admin-form-actions">
+                    <a href="{{ url_for('admin') }}" class="ps-btn ps-btn-soft">
+                        Отмена
+                    </a>
+
+                    <button type="submit" class="ps-btn ps-btn-main">
+                        Сохранить изменения
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+    </div>
+
+</div>
+
+<script>
+    const avatarInput = document.getElementById("avatar_file");
+    const avatarPreview = document.getElementById("avatarPreview");
+
+    if (avatarInput && avatarPreview) {
+        avatarInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                avatarPreview.src = event.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+</script>
+
+{% endblock %}

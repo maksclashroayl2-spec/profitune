@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or "ProfiTutors" }}</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+  <style>
+    .local-notification-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1;
+      box-shadow: 0 8px 18px rgba(239, 68, 68, .28);
+    }
+
+    .has-local-notifications {
+      background: rgba(239, 68, 68, .06) !important;
+      box-shadow: inset 4px 0 0 rgba(239, 68, 68, .85);
+    }
+  </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<!-- ===== ШАПКА ===== -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+
+    <!-- ЛОГО -->
+    <a href="{{ url_for('index') }}" class="navbar-brand logo-link">
+      <img
+        src="{{ url_for('static', filename='img/logo.png') }}"
+        alt="ProfiTutors"
+        width="230"
+        height="230"
+        style="object-fit: contain; display:block;"
+      >
+    </a>
+
+    <!-- МОБИЛЬНОЕ МЕНЮ -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#nav"
+      aria-controls="nav"
+      aria-expanded="false"
+      aria-label="Открыть меню"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- НАВИГАЦИЯ -->
+    <div class="collapse navbar-collapse" id="nav">
+
+      <ul class="navbar-nav me-auto">
+
+        <li class="nav-item">
+          <a class="nav-link text-light" href="{{ url_for('index') }}">
+            Главная
+          </a>
+        </li>
+
+        {% if not user or user.role == "parent" %}
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('tutors') }}">
+              Репетиторы
+            </a>
+          </li>
+        {% endif %}
+
+        {% if user and user.role == "parent" %}
+          <li class="nav-item">
+            <a class="nav-link text-light nav-link-with-badge" href="{{ url_for('parent_lessons') }}">
+              Занятия
+              {% if nav_notifications.parent_lessons %}
+                <span class="nav-notification-badge">{{ nav_notifications.parent_lessons }}</span>
+              {% endif %}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('parent_telegram_link') }}">
+              Telegram
+            </a>
+          </li>
+        {% endif %}
+
+        {% if user and user.role == "tutor" and user.tutor_status == "approved" and user.is_hidden %}
+          <li class="nav-item">
+            <a class="nav-link text-light nav-link-with-badge" href="{{ url_for('hidden_reports') }}">
+              Отчёты
+              {% if nav_notifications.hidden_reports %}
+                <span class="nav-notification-badge">{{ nav_notifications.hidden_reports }}</span>
+              {% endif %}
+            </a>
+          </li>
+        {% endif %}
+
+        {% if user and user.role == "tutor" and user.tutor_status == "approved" and not user.is_hidden %}
+          <li class="nav-item">
+            <a class="nav-link text-light nav-link-with-badge" href="{{ url_for('visible_tutor_reports') }}">
+              Отчёты
+              {% if nav_notifications.visible_reports %}
+                <span class="nav-notification-badge">{{ nav_notifications.visible_reports }}</span>
+              {% endif %}
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('manage_hidden_assignments') }}">
+              Репетиторы
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('tutor_calculation') }}">
+              Подсчёт
+            </a>
+          </li>
+
+        {% endif %}
+
+        {% if user and user.role == "admin" %}
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('admin') }}">
+              Админ-панель
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('admin_finance') }}">
+              Финансы
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('admin_payroll') }}">
+              Зарплаты
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('admin_finance_log') }}">
+              Журнал
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('admin_backups') }}">
+              Бэкапы
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('admin_message_templates') }}">
+              Шаблоны сообщений
+            </a>
+          </li>
+        {% endif %}
+
+        {% if user and user.role == "admin" %}
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('bookings') }}">
+              Все заявки
+            </a>
+          </li>
+        {% elif user and user.role == "tutor" and user.tutor_status == "approved" and user.can_receive_bookings and not user.is_hidden %}
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('bookings') }}">
+              Заявки родителей
+            </a>
+          </li>
+        {% endif %}
+
+      </ul>
+
+      <!-- ПРАВАЯ ЧАСТЬ -->
+      <ul class="navbar-nav align-items-center">
+
+        {% if user %}
+
+          <li class="nav-item me-2">
+            <span class="navbar-text text-light small">
+              {{ user.name }}
+
+              {% if user.role == "admin" %}
+                (admin)
+              {% elif user.role == "tutor" %}
+                (tutor)
+              {% else %}
+                (parent)
+              {% endif %}
+            </span>
+          </li>
+
+          {% if user.role == "tutor" and user.tutor_status == "approved" and user.can_edit_profile %}
+            <li class="nav-item me-2">
+              <a class="nav-link text-light" href="{{ url_for('edit_tutor_profile') }}">
+                Мой профиль
+              </a>
+            </li>
+          {% endif %}
+
+          {% if user.role == "admin" %}
+            <li class="nav-item me-2">
+              <a class="nav-link text-light" href="{{ url_for('admin') }}">
+                Админ
+              </a>
+            </li>
+          {% endif %}
+
+          <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">
+              Выйти
+            </a>
+          </li>
+
+        {% else %}
+
+          <li class="nav-item">
+            <a class="nav-link text-light" href="{{ url_for('login') }}">
+              Вход
+            </a>
+          </li>
+
+          <li class="nav-item ms-2">
+            <a class="btn btn-primary btn-sm" href="{{ url_for('register') }}">
+              Регистрация
+            </a>
+          </li>
+
+        {% endif %}
+
+      </ul>
+
+    </div>
+
+  </div>
+</nav>
+
+<!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
+<main class="container my-4 flex-grow-1">
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ 
+          'warning' if cat=='warning'
+          else ('danger' if cat=='error'
+          else ('success' if cat=='success'
+          else 'info'))
+        }} alert-dismissible fade show"
+             role="alert">
+
+          {{ msg }}
+
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Закрыть">
+          </button>
+
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+
+</main>
+
+<!-- ===== ПОДВАЛ ===== -->
+<footer class="site-footer mt-auto">
+
+  <div class="container py-4">
+
+    <div class="row g-4">
+
+      <!-- О ПРОЕКТЕ -->
+      <div class="col-md-4">
+
+        <h5 class="footer-title">
+          ProfiTutors
+        </h5>
+
+        <p class="footer-text">
+          Web-платформа для поиска репетиторов,
+          записи на занятия и отслеживания
+          сотрудничества с преподавателями.
+        </p>
+
+      </div>
+
+      <!-- РАЗДЕЛЫ -->
+      <div class="col-md-3">
+
+        <h6 class="footer-title">
+          Разделы
+        </h6>
+
+        <ul class="footer-links">
+
+          <li>
+            <a href="{{ url_for('index') }}">
+              Главная
+            </a>
+          </li>
+
+          {% if not user or user.role == "parent" %}
+            <li>
+              <a href="{{ url_for('tutors') }}">
+                Репетиторы
+              </a>
+            </li>
+          {% endif %}
+
+          {% if user and user.role == "parent" %}
+            <li>
+              <a href="{{ url_for('parent_lessons') }}">
+                Занятия
+              </a>
+            </li>
+          {% endif %}
+
+          {% if user and user.role == "admin" %}
+            <li>
+              <a href="{{ url_for('bookings') }}">
+                Все заявки
+              </a>
+            </li>
+          {% elif user and user.role == "tutor" and user.tutor_status == "approved" and user.can_receive_bookings and not user.is_hidden %}
+            <li>
+              <a href="{{ url_for('bookings') }}">
+                Заявки родителей
+              </a>
+            </li>
+          {% endif %}
+
+          {% if user and user.role == "admin" %}
+            <li>
+              <a href="{{ url_for('admin') }}">
+                Админ-панель
+              </a>
+            </li>
+          {% endif %}
+
+        </ul>
+
+      </div>
+
+      <!-- ВОЗМОЖНОСТИ -->
+      <div class="col-md-3">
+
+        <h6 class="footer-title">
+          Возможности
+        </h6>
+
+        <ul class="footer-links">
+
+          {% if not user or user.role == "parent" %}
+            <li>
+              <a href="{{ url_for('tutors') }}">
+                Поиск преподавателей
+              </a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('tutors') }}">
+                Фильтрация по предметам
+              </a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('bookings') if user else url_for('login') }}">
+                Онлайн-запись
+              </a>
+            </li>
+          {% endif %}
+
+          {% if user and user.role == "tutor" and user.tutor_status == "approved" and user.is_hidden %}
+            <li>
+              <a href="{{ url_for('hidden_reports') }}">
+                Отчёты
+              </a>
+            </li>
+          {% endif %}
+
+          {% if user and user.role == "tutor" and user.tutor_status == "approved" and not user.is_hidden %}
+            <li>
+              <a href="{{ url_for('manage_hidden_assignments') }}">
+                Репетиторы
+              </a>
+            </li>
+          {% endif %}
+
+          {% if user and user.role == "tutor" and user.tutor_status == "approved" %}
+            {% if user.can_edit_profile %}
+              <li>
+                <a href="{{ url_for('edit_tutor_profile') }}">
+                  Редактирование анкеты
+                </a>
+              </li>
+            {% endif %}
+
+            {% if user.can_receive_bookings %}
+              <li>
+                <a href="{{ url_for('bookings') }}">
+                  Управление заявками
+                </a>
+              </li>
+            {% endif %}
+
+            {% if user.can_be_visible %}
+              <li>
+                <a href="{{ url_for('tutor_profile', tutor_id=user.id) }}">
+                  Просмотр профиля
+                </a>
+              </li>
+            {% endif %}
+          {% endif %}
+
+          {% if user and user.role == "admin" %}
+            <li>
+              <a href="{{ url_for('admin') }}">
+                Управление пользователями
+              </a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('admin') }}">
+                Управление заявками
+              </a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('admin') }}">
+                Редактирование анкет
+              </a>
+            </li>
+          {% endif %}
+
+          {% if not user %}
+            <li>
+              <a href="{{ url_for('login') }}">
+                Вход в систему
+              </a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('register') }}">
+                Регистрация
+              </a>
+            </li>
+          {% endif %}
+
+        </ul>
+
+      </div>
+
+      <!-- КОНТАКТЫ -->
+      <div class="col-md-2">
+
+        <h6 class="footer-title">
+          Контакты
+        </h6>
+
+        <p class="footer-text mb-1">
+          dendanil25@gmail.com
+        </p>
+
+        <p class="footer-text">
+          +7 (908) 109-79-89
+        </p>
+
+      </div>
+
+    </div>
+
+    <hr class="footer-line">
+
+    <!-- НИЖНЯЯ СТРОКА -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 footer-bottom">
+
+      <span>
+        © 2026 ProfiTutors
+      </span>
+
+      <a href="{{ url_for('public_offer') }}" class="footer-text">
+        Публичная оферта
+      </a>
+
+      <a href="{{ url_for('privacy_policy') }}" class="footer-text">
+        Политика обработки персональных данных
+      </a>
+
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JS -->
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+</div>
+</html>

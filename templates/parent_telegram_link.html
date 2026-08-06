@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 640px;">
+
+  <h3 class="mb-3">Уведомления в Telegram</h3>
+
+  {% if not bot_configured %}
+    <div class="alert alert-light border">
+      Telegram-бот на сайте пока не настроен. Обратитесь к администратору платформы.
+    </div>
+  {% elif is_linked %}
+    <div class="card rounded-4 shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge bg-success">Привязан</span>
+        </div>
+        <p class="text-muted mb-0">
+          Ваш Telegram уже привязан. Вы будете получать сюда сообщения от репетитора —
+          например, если ребёнок пропустил занятие.
+        </p>
+      </div>
+    </div>
+  {% else %}
+    <div class="card rounded-4 shadow-sm border-0">
+      <div class="card-body">
+        <p>
+          Привяжите Telegram, чтобы получать короткие уведомления от репетитора —
+          например, если ребёнок не пришёл на занятие или оно перенесено.
+        </p>
+        <ol class="mb-3">
+          <li>Нажмите одну из кнопок ниже — откроется Telegram (приложение или браузер).</li>
+          <li>Нажмите «Start» в чате с ботом.</li>
+          <li>Готово — бот подтвердит привязку сообщением.</li>
+        </ol>
+
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <a class="btn btn-primary" href="{{ deep_link }}" target="_blank" rel="noopener">
+            Открыть в приложении Telegram
+          </a>
+          {% if web_link %}
+            <a class="btn btn-outline-primary" href="{{ web_link }}" target="_blank" rel="noopener">
+              Открыть в браузере
+            </a>
+          {% endif %}
+        </div>
+
+        {% if web_link %}
+          <div class="alert alert-light border small mb-0">
+            <strong>Если после клика по «Открыть в браузере» вы видите общий список
+            чатов, а не бота</strong> — это нормально: так бывает при первом входе
+            в веб-версию, пока вы ещё не залогинены. Сделайте так:
+            <ol class="mt-2 mb-2">
+              <li>Войдите в свой аккаунт Telegram в открывшемся окне (по QR-коду или номеру).</li>
+              <li>
+                В строке поиска сверху введите
+                {% if bot_username %}
+                  <code>@{{ bot_username }}</code>
+                {% else %}
+                  имя бота
+                {% endif %}
+                и откройте чат с ним.
+              </li>
+              <li>Отправьте боту сообщение:</li>
+            </ol>
+            <div class="mb-2">
+              <code class="fs-6">/start {{ link_code }}</code>
+            </div>
+            <div class="text-muted">
+              Если бот уже открылся сам и предложил кнопку «Start» — просто нажмите её,
+              вводить код вручную не нужно.
+            </div>
+          </div>
+        {% endif %}
+
+        <p class="text-muted small mt-3 mb-0">
+          Код одноразовый и привязан к вашему аккаунту — никому его не передавайте.
+        </p>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

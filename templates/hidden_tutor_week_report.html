@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="mb-4">
+    <a
+      href="{{ url_for('hidden_reports', parent_id=week.parent_id, tutor_id=week.tutor_id) }}"
+      class="btn btn-outline-secondary rounded-3"
+    >
+      ← Назад к неделям
+    </a>
+  </div>
+
+  <div class="card shadow-sm rounded-4 border-0">
+    <div class="card-header bg-white rounded-top-4 p-4">
+      <h1 class="h3 mb-1">📚 Отчёт</h1>
+      <p class="text-muted mb-0">{{ format_week_period(week) }} • Родитель: {{ parent.name }}</p>
+      {% if tutor %}
+        <p class="text-muted mb-0">Основной репетитор: {{ tutor.name }}</p>
+      {% endif %}
+    </div>
+
+    <div class="card-body p-4">
+      {% if week.report and week.report.moderation_status == 'pending' %}
+        <div class="alert alert-warning rounded-3">
+          Отчёт уже отправлен на модерацию. Родитель увидит его только после одобрения.
+        </div>
+      {% elif week.report and week.report.moderation_status == 'approved' %}
+        <div class="alert alert-success rounded-3">
+          Последний отчёт одобрен и опубликован для родителя.
+        </div>
+      {% elif week.report and week.report.moderation_status == 'rejected' %}
+        <div class="alert alert-danger rounded-3">
+          Отчёт отклонён основным репетитором.
+          {% if week.report.moderation_comment %}
+            <div class="mt-2"><strong>Комментарий:</strong> {{ week.report.moderation_comment }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <form method="post">
+                {{ csrf_field() }}
+        <div class="mb-4">
+          <label class="form-label fw-semibold" for="reportText">
+            Текстовая часть отчёта
+          </label>
+
+          <textarea
+            id="reportText"
+            name="report_text"
+            class="form-control"
+            style="min-height: 420px; resize: vertical;"
+            placeholder="Введите отчёт за неделю"
+          >{{ week.report.pending_text if week.report and week.report.pending_text else (week.report.text if week.report else '') }}</textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold" for="hoursInput">
+            Количество часов за неделю
+          </label>
+          {% set current_hours = week.report.pending_hours if week.report and week.report.pending_hours else (week.report.hours if week.report else 0) %}
+          <input
+            id="hoursInput"
+            name="hours"
+            type="number"
+            min="0"
+            step="0.25"
+            class="form-control form-control-lg"
+            value="{{ format_number(current_hours) }}"
+            placeholder="Например: 1.5"
+            required
+          >
+          <div class="form-text">Можно указывать дробные часы, например 1.5.</div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold" for="gradeSelect">
+            Оценка за неделю
+          </label>
+
+          {% set current_grade = week.report.pending_grade if week.report and week.report.pending_grade else (week.report.grade if week.report else '') %}
+          <select id="gradeSelect" name="grade" class="form-select form-select-lg">
+            <option value="" {% if not current_grade %}selected{% endif %}>Оценка не выбрана</option>
+            {% for value in ['2', '3', '4', '5'] %}
+              <option value="{{ value }}" {% if current_grade|string == value %}selected{% endif %}>{{ value }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+          <button type="submit" class="btn btn-primary btn-lg rounded-3">
+            Отправить на модерацию
+          </button>
+
+          <a
+            href="{{ url_for('hidden_reports', parent_id=week.parent_id, tutor_id=week.tutor_id) }}"
+            class="btn btn-outline-secondary btn-lg rounded-3"
+          >
+            Отмена
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

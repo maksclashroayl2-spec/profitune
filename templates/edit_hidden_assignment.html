@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="mb-4">
+    <a href="{{ url_for('manage_hidden_assignments') }}" class="back-link">
+      ← Назад к назначениям
+    </a>
+
+    <h1 class="mb-2 mt-3">Редактировать назначение</h1>
+    <p class="text-muted mb-0">
+      Измените кодовое имя родителя или выбранного репетитора.
+    </p>
+  </div>
+
+  <div class="card rounded-4 shadow-sm assignment-edit-card">
+    <div class="card-body">
+      <form method="post">
+                {{ csrf_field() }}
+        <div class="mb-3">
+          <label class="form-label">Родитель</label>
+          <input
+            class="form-control"
+            value="{{ assignment.parent.name }}"
+            readonly
+          >
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Кодовое имя родителя</label>
+          <input
+            class="form-control"
+            name="codename"
+            value="{{ assignment.parent_codename }}"
+            required
+          >
+          <div class="form-text">
+            Это имя видят только репетиторы в рабочем интерфейсе.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Стоимость часа для родителя</label>
+          <input
+            class="form-control"
+            name="parent_hour_price"
+            type="number"
+            min="0"
+            step="0.01"
+            value="{{ get_parent_hour_price(assignment.parent_id, assignment.visible_tutor_id) }}"
+            required
+          >
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Репетитор</label>
+          <select class="form-select" name="hidden_tutor_id" required>
+            {% for tutor in hidden_tutors %}
+              <option
+                value="{{ tutor.id }}"
+                {% if tutor.id == assignment.hidden_tutor_id %}selected{% endif %}
+              >
+                {{ tutor.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-primary" type="submit">
+            Сохранить изменения
+          </button>
+
+          <a href="{{ url_for('manage_hidden_assignments') }}" class="btn btn-outline-secondary">
+            Отмена
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

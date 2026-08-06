@@ -1,0 +1,924 @@
+
+<style>
+.sticky-finance-footer{position:sticky;bottom:0;background:#fff;border-top:1px solid #e5e7eb;padding:16px 24px;z-index:20}
+</style>
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .finance-page { max-width: 1280px; margin: 0 auto; }
+  .finance-hero {
+    border-radius: 34px;
+    padding: 34px;
+    margin-bottom: 24px;
+    background:
+      radial-gradient(circle at 10% 18%, rgba(124,58,237,.18), transparent 30%),
+      radial-gradient(circle at 90% 82%, rgba(37,99,235,.14), transparent 32%),
+      rgba(255,255,255,.96);
+    border: 1px solid rgba(226,232,240,.95);
+    box-shadow: 0 24px 70px rgba(15,23,42,.10);
+  }
+  .finance-title { margin: 0; color:#0f172a; font-size: clamp(32px,4vw,46px); font-weight:950; letter-spacing:-.04em; }
+  .finance-subtitle { max-width: 850px; margin: 12px 0 0; color:#64748b; line-height:1.7; }
+  .finance-actions { margin-top: 20px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  .finance-filter {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 24px;
+    background: rgba(255,255,255,.88);
+    border: 1px solid rgba(226,232,240,.95);
+  }
+  .finance-filter form { display:flex; flex-wrap:wrap; gap:14px; align-items:end; }
+  .period-note { margin:0 0 12px; color:#334155; font-weight:900; }
+  .period-note span { color:#2563eb; }
+  .finance-filter label, .finance-settings-modal label { color:#334155; font-weight:800; margin-bottom:6px; }
+  .finance-grid { display:grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:24px; }
+  .finance-stat {
+    border-radius:28px; padding:22px;
+    background:rgba(255,255,255,.96);
+    border:1px solid rgba(226,232,240,.95);
+    box-shadow:0 18px 46px rgba(15,23,42,.08);
+  }
+  .finance-label { color:#64748b; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px; }
+  .finance-value { color:#0f172a; font-size:28px; font-weight:950; line-height:1.1; }
+  .finance-stat.good .finance-value { color:#15803d; }
+  .finance-stat.warn .finance-value { color:#b45309; }
+  .finance-stat.accent .finance-value { color:#2563eb; }
+
+  .finance-chart-card {
+    margin-bottom: 24px;
+    border-radius: 30px;
+    padding: 24px;
+    background: rgba(255,255,255,.97);
+    border: 1px solid rgba(226,232,240,.95);
+    box-shadow: 0 22px 58px rgba(15,23,42,.09);
+  }
+  .finance-chart-head {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+  }
+  .finance-chart-title {
+    margin:0;
+    color:#0f172a;
+    font-size:24px;
+    font-weight:950;
+    letter-spacing:-.03em;
+  }
+  .finance-chart-subtitle {
+    margin:6px 0 0;
+    color:#64748b;
+    line-height:1.55;
+  }
+  .finance-chart-controls {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .finance-chart-btn {
+    border:1px solid rgba(37,99,235,.35);
+    background:#fff;
+    color:#2563eb;
+    border-radius:14px;
+    padding:9px 14px;
+    font-weight:900;
+    transition:.18s ease;
+  }
+  .finance-chart-btn:hover,
+  .finance-chart-btn.active {
+    background:#7c3aed;
+    border-color:#7c3aed;
+    color:#fff;
+    box-shadow:0 14px 28px rgba(124,58,237,.22);
+  }
+  .finance-chart-bars { display:block; }
+  .finance-pie-layout {
+    display:grid;
+    grid-template-columns: minmax(260px, 420px) minmax(260px, 1fr);
+    gap:28px;
+    align-items:center;
+  }
+  .finance-pie-wrap {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:300px;
+  }
+  .finance-pie {
+    width:min(320px, 72vw);
+    aspect-ratio:1;
+    border-radius:50%;
+    position:relative;
+    background:conic-gradient(#2563eb 0deg 0deg, #eef2ff 0deg 360deg);
+    box-shadow: inset 0 0 0 1px rgba(226,232,240,.95), 0 22px 48px rgba(37,99,235,.14);
+    transition: background .25s ease;
+  }
+  .finance-pie::after {
+    content:'';
+    position:absolute;
+    inset:28%;
+    border-radius:50%;
+    background:#fff;
+    box-shadow: inset 0 0 0 1px rgba(226,232,240,.9);
+  }
+  .finance-pie-center {
+    position:absolute;
+    inset:32%;
+    border-radius:50%;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    pointer-events:none;
+  }
+  .finance-pie-center span { color:#64748b; font-weight:800; font-size:13px; }
+  .finance-pie-center strong { color:#0f172a; font-weight:950; font-size:22px; line-height:1.1; margin-top:4px; }
+  .finance-pie-legend { display:grid; gap:14px; }
+  .finance-pie-legend-row {
+    display:grid;
+    grid-template-columns: auto 1fr auto;
+    gap:14px;
+    align-items:center;
+    padding:14px 0;
+    border-bottom:1px solid rgba(226,232,240,.95);
+  }
+  .finance-pie-dot { width:16px; height:16px; border-radius:999px; box-shadow:0 8px 18px rgba(37,99,235,.18); }
+  .finance-pie-name { color:#0f172a; font-weight:950; }
+  .finance-pie-numbers { text-align:right; }
+  .finance-pie-money { color:#15803d; font-weight:950; white-space:nowrap; }
+  .finance-pie-percent { color:#64748b; font-weight:800; font-size:13px; margin-top:2px; }
+  .finance-chart-empty {
+    padding:18px;
+    border-radius:18px;
+    background:#f8fafc;
+    color:#64748b;
+    font-weight:800;
+    border:1px solid rgba(226,232,240,.95);
+  }
+
+  .finance-admin-grid {
+    display:grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap:18px;
+    margin-bottom:24px;
+  }
+  .finance-admin-card {
+    cursor:pointer;
+    transition:.18s ease;
+    border-radius:30px;
+    padding:24px;
+    background:rgba(255,255,255,.97);
+    border:1px solid rgba(226,232,240,.95);
+    box-shadow:0 22px 58px rgba(15,23,42,.09);
+    min-height:118px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+  }
+  .finance-admin-card:hover { transform:translateY(-2px); border-color:rgba(37,99,235,.45); box-shadow:0 26px 64px rgba(37,99,235,.12); }
+  .finance-admin-card.active { border:2px solid #2563eb; box-shadow:0 26px 66px rgba(37,99,235,.18); }
+  .finance-admin-head { display:flex; align-items:center; gap:14px; }
+  .finance-admin-icon {
+    width:46px; height:46px; border-radius:16px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(37,99,235,.10); color:#2563eb; font-size:22px; font-weight:950;
+  }
+  .finance-admin-name { color:#0f172a; font-size:25px; font-weight:950; letter-spacing:-.03em; }
+  .finance-admin-chevron { color:#2563eb; font-size:26px; font-weight:950; }
+  .finance-admin-card.active .finance-admin-chevron { transform:rotate(180deg); }
+
+  .finance-detail-panel {
+    display:none;
+    border-radius:30px;
+    padding:26px;
+    margin-bottom:24px;
+    background:rgba(255,255,255,.97);
+    border:1px solid rgba(226,232,240,.95);
+    box-shadow:0 22px 58px rgba(15,23,42,.09);
+  }
+  .finance-detail-panel.active { display:block; }
+  .finance-detail-title { margin:0 0 6px; color:#0f172a; font-size:24px; font-weight:950; letter-spacing:-.03em; }
+  .finance-detail-subtitle { margin:0 0 20px; color:#64748b; line-height:1.6; }
+  .finance-table-wrap { overflow-x:auto; }
+  .finance-table { width:100%; border-collapse:collapse; }
+  .finance-table th { padding:14px 16px; color:#64748b; font-size:12px; text-transform:uppercase; letter-spacing:.05em; white-space:nowrap; background:#f8fafc; }
+  .finance-table td { padding:15px 16px; border-top:1px solid #e2e8f0; color:#334155; vertical-align:middle; white-space:nowrap; }
+  .finance-main { color:#0f172a; font-weight:900; }
+  .money-good { color:#15803d; font-weight:950; }
+  .money-warn { color:#b45309; font-weight:950; }
+  .money-bad { color:#b91c1c; font-weight:950; }
+  .finance-empty { padding:22px; border-radius:22px; background:#f8fafc; color:#64748b; border:1px solid rgba(226,232,240,.95); font-weight:700; }
+
+  .settings-section { border:1px solid rgba(226,232,240,.95); border-radius:22px; padding:18px; margin-bottom:18px; background:#f8fafc; }
+  .settings-title { margin:0 0 14px; color:#0f172a; font-size:18px; font-weight:950; }
+  .settings-grid { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:14px; }
+  .settings-toggle { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; background:#fff; border:1px solid rgba(226,232,240,.95); color:#0f172a; font-weight:850; cursor:pointer; }
+  .settings-toggle input { width:18px; height:18px; }
+  .settings-tutor-row { display:grid; grid-template-columns: 1.1fr 1fr .8fr; gap:12px; align-items:end; padding:12px 0; border-top:1px solid #e2e8f0; }
+  .settings-tutor-row:first-of-type { border-top:0; }
+  .settings-tutor-name { color:#0f172a; font-weight:900; padding-bottom:10px; }
+  .seriy-source-panel { display:none; }
+  .seriy-source-panel.active { display:block; }
+  .extra-percent-panel {
+    max-height: 56vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
+    margin-right: -4px;
+  }
+  .extra-percent-panel::-webkit-scrollbar { width: 8px; }
+  .extra-percent-panel::-webkit-scrollbar-track { background:#eef2ff; border-radius:20px; }
+  .extra-percent-panel::-webkit-scrollbar-thumb { background:#7c3aed; border-radius:20px; }
+  .extra-percent-panel::-webkit-scrollbar-thumb:hover { background:#6d28d9; }
+
+  .finance-settings-modal .modal-content {
+    height: 90vh;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .finance-settings-modal form {
+    height: 90vh;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .finance-settings-modal .modal-body {
+    overflow-y: auto;
+    max-height: none;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-right: 14px;
+    padding-bottom: 24px;
+  }
+  .finance-settings-modal .sticky-finance-footer {
+    flex: 0 0 auto;
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    z-index: 30;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -12px 28px rgba(15, 23, 42, .08);
+  }
+  .finance-settings-modal .modal-body::-webkit-scrollbar { width: 10px; }
+  .finance-settings-modal .modal-body::-webkit-scrollbar-track { background:#eef2ff; border-radius:20px; }
+  .finance-settings-modal .modal-body::-webkit-scrollbar-thumb { background:#7c3aed; border-radius:20px; }
+  .finance-settings-modal .modal-body::-webkit-scrollbar-thumb:hover { background:#6d28d9; }
+  .seriy-preview-box {
+    margin-top: 18px;
+    padding: 18px;
+    border-radius: 22px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(226,232,240,.95);
+  }
+  .seriy-preview-title {
+    margin: 0 0 12px;
+    color: #0f172a;
+    font-weight: 950;
+    font-size: 18px;
+  }
+  .seriy-preview-row {
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    padding:10px 0;
+    border-top:1px solid rgba(226,232,240,.95);
+    color:#334155;
+    font-weight:800;
+  }
+  .seriy-preview-row:first-of-type { border-top:0; }
+  .seriy-preview-plus { color:#15803d; font-weight:950; }
+  .seriy-preview-minus { color:#b45309; font-weight:950; }
+  .seriy-preview-muted { color:#64748b; font-size:13px; margin-top:4px; }
+
+  @media (max-width: 860px) { .finance-pie-layout { grid-template-columns:1fr; } }
+  @media (max-width: 992px) { .finance-grid, .finance-admin-grid, .settings-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .settings-tutor-row { grid-template-columns:1fr; } }
+  @media (max-width: 576px) { .finance-grid, .finance-admin-grid, .settings-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="finance-page">
+  <section class="finance-hero">
+    <h1 class="finance-title">Финансы платформы</h1>
+    <p class="finance-subtitle">
+      Общий счёт считается из оплаченных завершённых недель родителей. Потом вычитаются выплаты репетиторам и процент обычных репетиторов, а остаток относится к админам по их веткам.
+    </p>
+
+    <div class="finance-actions">
+      <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#financeSettingsModal">
+        Настройки финансов
+      </button>
+    </div>
+
+    <div class="finance-filter">
+      <p class="period-note">Период: <span>{{ period_caption }}</span>{% if date_from and date_to %} · {{ date_from }} — {{ date_to }}{% endif %}</p>
+      <form method="get">
+        <div>
+          <label for="date_from">С даты</label>
+          <input type="date" id="date_from" name="date_from" class="form-control" value="{{ date_from or '' }}">
+        </div>
+        <div>
+          <label for="date_to">По дату</label>
+          <input type="date" id="date_to" name="date_to" class="form-control" value="{{ date_to or '' }}">
+        </div>
+        <button class="btn btn-primary" type="submit">Применить</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin_finance') }}">Сбросить</a>
+      </form>
+    </div>
+  </section>
+
+  <div class="finance-grid">
+    <div class="finance-stat accent">
+      <div class="finance-label">На общем счёте</div>
+      <div class="finance-value">{{ format_money(total_account) }}</div>
+    </div>
+    <div class="finance-stat warn">
+      <div class="finance-label">ЗП репетиторам</div>
+      <div class="finance-value">{{ format_money(total_hidden_payout) }}</div>
+    </div>
+    <div class="finance-stat warn">
+      <div class="finance-label">Нескрытым</div>
+      <div class="finance-value">{{ format_money(total_visible_payout) }}</div>
+    </div>
+    <div class="finance-stat good">
+      <div class="finance-label">Админам</div>
+      <div class="finance-value">{{ format_money(total_admin_sum) }}</div>
+    </div>
+  </div>
+
+  <section class="finance-chart-card">
+    <div class="finance-chart-head">
+      <div>
+        <h2 class="finance-chart-title">Диаграмма распределения прибыли</h2>
+        <p class="finance-chart-subtitle">
+          Сравнение прибыли Сани, Серого и Дэна.
+        </p>
+      </div>
+      <div class="finance-chart-controls" aria-label="Выбор периода диаграммы">
+        <button type="button" class="finance-chart-btn active" data-chart-period="last_week">Прошедшая неделя</button>
+        <button type="button" class="finance-chart-btn" data-chart-period="month">Месяц</button>
+        <button type="button" class="finance-chart-btn" data-chart-period="year">Год</button>
+      </div>
+    </div>
+    <div id="adminProfitChart" class="finance-chart-bars"></div>
+  </section>
+
+  <section class="finance-admin-grid">
+    {% for card in admin_cards %}
+      <article class="finance-admin-card {% if loop.first %}active{% endif %}" data-admin-card="admin-{{ loop.index }}" tabindex="0" role="button">
+        <div class="finance-admin-head">
+          <div class="finance-admin-icon">👤</div>
+          <div class="finance-admin-name">{{ card.name }}</div>
+        </div>
+        <div class="finance-admin-chevron">⌄</div>
+      </article>
+    {% endfor %}
+  </section>
+
+  {% for card in admin_cards %}
+    <section class="finance-detail-panel {% if loop.first %}active{% endif %}" id="admin-{{ loop.index }}">
+      <h2 class="finance-detail-title">{{ card.name }}: источники прибыли</h2>
+      <p class="finance-detail-subtitle">
+        Здесь показано, из каких источников складывается прибыль выбранного участника.
+      </p>
+
+      {% if card.visible_tutor_rows or card.bonus_items %}
+        <div class="finance-table-wrap">
+          <table class="finance-table">
+            <thead>
+              <tr>
+                <th>Репетитор / источник</th>
+                <th>Родителей</th>
+                <th>Часы</th>
+                <th>Доход родителей</th>
+                <th>Выплаты репетиторам</th>
+                <th>Доля получателя</th>
+                <th>К получению</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tutor in card.visible_tutor_rows %}
+                <tr>
+                  <td class="finance-main">{{ tutor.name }}</td>
+                  <td>{{ tutor.parents_count }}</td>
+                  <td>{{ format_number(tutor.hours) }} ч</td>
+                  <td class="money-good">{{ format_money(tutor.income) }}</td>
+                  <td class="money-warn">{{ format_money(tutor.hidden_payout) }}</td>
+                  <td class="money-warn">{{ format_money(tutor.visible_payout) }} · {{ format_number(tutor.visible_percent) }}%</td>
+                  <td class="{% if tutor.admin_profit >= 0 %}money-good{% else %}money-bad{% endif %}">{{ format_money(tutor.admin_profit) }}</td>
+                </tr>
+              {% endfor %}
+
+              {% for bonus in card.bonus_items %}
+                <tr class="finance-bonus-row">
+                  <td class="finance-main">{{ bonus.label|default("Процент от " ~ bonus.source) }}</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td class="money-warn">{{ format_number(bonus.percent) }}%</td>
+                  <td class="{% if bonus.amount >= 0 %}money-good{% else %}money-bad{% endif %}">
+                    {% if bonus.amount >= 0 %}+{% endif %}{{ format_money(bonus.amount) }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>Итого по получателю</th>
+                <th>{{ card.visible_count }}</th>
+                <th>{{ format_number(card.hours) }} ч</th>
+                <th>{{ format_money(card.parent_income) }}</th>
+                <th>{{ format_money(card.hidden_payout) }}</th>
+                <th>{{ format_money(card.visible_payout) }}</th>
+                <th>{{ format_money(card.branch_profit) }}</th>
+              </tr>
+              {% if card.bonus_to_seriy > 0 or card.bonus_from_others > 0 %}
+                <tr>
+                  <th colspan="6">
+                    {% if card.bonus_to_seriy > 0 %}Передано Серому{% endif %}
+                    {% if card.bonus_from_others > 0 %}Получено от Сани и Дэна{% endif %}
+                  </th>
+                  <th>
+                    {% if card.bonus_to_seriy > 0 %}-{{ format_money(card.bonus_to_seriy) }}{% endif %}
+                    {% if card.bonus_from_others > 0 %}+{{ format_money(card.bonus_from_others) }}{% endif %}
+                  </th>
+                </tr>
+              {% endif %}
+              <tr>
+                <th colspan="6">Итог получателя</th>
+                <th>{{ format_money(card.profit) }}</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      {% else %}
+        <div class="finance-empty">За выбранный период у этого получателя нет начислений.</div>
+      {% endif %}
+    </section>
+  {% endfor %}
+</div>
+
+<div class="modal fade finance-settings-modal" id="financeSettingsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <form method="post" action="{{ url_for('admin_finance_settings') }}">
+                {{ csrf_field() }}
+        <div class="modal-header">
+          <h5 class="modal-title">Настройки финансов</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+        <div class="modal-body">
+          <div class="settings-section">
+            <h3 class="settings-title">Распределение прибыли</h3>
+            <p class="finance-detail-subtitle mb-3">
+              Укажите, кому уходит прибыль после выплаты скрытым репетиторам.
+              Получателем может быть админ или нескрытый репетитор. Теперь можно делить и прибыль Сані, Серого и Дэна.
+            </p>
+
+            {% if profit_sources and profit_recipients %}
+              <div class="profit-share-list">
+                {% for source_tutor in profit_sources %}
+                  <div class="settings-section profit-share-card" data-profit-share-card>
+                    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+                      <div>
+                        <h4 class="settings-title mb-1">{{ source_tutor.name }}</h4>
+                        <div class="seriy-preview-muted">
+                          Прибыль этого участника распределяется между выбранными получателями.
+                        </div>
+                      </div>
+                      <div class="profit-share-total" data-profit-share-total>Итого: 0%</div>
+                    </div>
+
+                    <div class="finance-table-wrap">
+                      <table class="finance-table profit-share-table">
+                        <thead>
+                          <tr>
+                            <th>Получатель</th>
+                            <th>Тип</th>
+                            <th>Процент</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody data-profit-share-rows>
+                          {% set has_selected_recipients = false %}
+                          {% for recipient in profit_recipients %}
+                            {% set percent = share_settings.get(source_tutor.id, {}).get(recipient.id, 0) %}
+                            {% if percent > 0 %}
+                              {% set has_selected_recipients = true %}
+                              <tr data-profit-share-row>
+                                <td>
+                                  <select class="form-select" name="profit_recipient_{{ source_tutor.id }}[]" data-profit-recipient-select>
+                                    {% for option in profit_recipients %}
+                                      <option value="{{ option.id }}" data-role="{{ option.role }}" {% if option.id == recipient.id %}selected{% endif %}>
+                                        {{ option.name }}
+                                      </option>
+                                    {% endfor %}
+                                  </select>
+                                </td>
+                                <td data-profit-recipient-role>{{ recipient.role }}</td>
+                                <td>
+                                  <input
+                                    class="form-control profit-share-input"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.1"
+                                    name="profit_percent_{{ source_tutor.id }}[]"
+                                    value="{{ format_number(percent) }}"
+                                    data-profit-share-input
+                                  >
+                                </td>
+                                <td class="text-end">
+                                  <button type="button" class="btn btn-outline-danger btn-sm" data-remove-profit-row>Удалить</button>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div class="finance-empty py-3" data-profit-share-empty>
+                      Получатели ещё не добавлены. Нажмите кнопку ниже и задайте процент.
+                    </div>
+
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-sm mt-3"
+                      data-add-profit-row
+                      data-source-id="{{ source_tutor.id }}"
+                    >
+                      + Добавить получателя
+                    </button>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="finance-empty">Для распределения нужны источники прибыли и хотя бы один получатель.</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="modal-footer sticky-finance-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary">Сохранить настройки</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script id="adminProfitChartData" type="application/json">
+  {{ admin_profit_chart|tojson }}
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const chartDataElement = document.getElementById('adminProfitChartData');
+  const chartContainer = document.getElementById('adminProfitChart');
+  const chartButtons = document.querySelectorAll('[data-chart-period]');
+  const colors = ['#2563EB', '#EF4444', '#22C55E'];
+
+  function formatMoney(value) {
+    const number = Number(value || 0);
+    return new Intl.NumberFormat('ru-RU', {
+      maximumFractionDigits: 0
+    }).format(number) + ' ₽';
+  }
+
+  function renderAdminProfitChart(period) {
+    if (!chartDataElement || !chartContainer) {
+      return;
+    }
+
+    let data = {};
+    try {
+      data = JSON.parse(chartDataElement.textContent || '{}');
+    } catch (error) {
+      data = {};
+    }
+
+    const rows = (data[period] || []).map((row, index) => ({
+      name: row.name,
+      value: Math.max(Number(row.profit || 0), 0),
+      color: colors[index % colors.length]
+    }));
+
+    const total = rows.reduce((sum, row) => sum + row.value, 0);
+    chartContainer.innerHTML = '';
+
+    if (!rows.length || total <= 0) {
+      chartContainer.innerHTML = '<div class="finance-chart-empty">За выбранный период прибыли пока нет.</div>';
+      return;
+    }
+
+    let current = 0;
+    const gradientParts = rows.map(row => {
+      const start = current;
+      const size = (row.value / total) * 360;
+      current += size;
+      return `${row.color} ${start}deg ${current}deg`;
+    });
+
+    const layout = document.createElement('div');
+    layout.className = 'finance-pie-layout';
+
+    const pieWrap = document.createElement('div');
+    pieWrap.className = 'finance-pie-wrap';
+    pieWrap.innerHTML = `
+      <div class="finance-pie" style="background: conic-gradient(${gradientParts.join(', ')});">
+        <div class="finance-pie-center">
+          <span>Всего прибыль</span>
+          <strong>${formatMoney(total)}</strong>
+        </div>
+      </div>
+    `;
+
+    const legend = document.createElement('div');
+    legend.className = 'finance-pie-legend';
+
+    rows.forEach(row => {
+      const percent = total > 0 ? (row.value / total * 100) : 0;
+      const item = document.createElement('div');
+      item.className = 'finance-pie-legend-row';
+      item.innerHTML = `
+        <span class="finance-pie-dot" style="background:${row.color}"></span>
+        <span class="finance-pie-name">${row.name}</span>
+        <span class="finance-pie-numbers">
+          <span class="finance-pie-money">${formatMoney(row.value)}</span>
+          <span class="finance-pie-percent">${percent.toFixed(1).replace('.', ',')}%</span>
+        </span>
+      `;
+      legend.appendChild(item);
+    });
+
+    layout.appendChild(pieWrap);
+    layout.appendChild(legend);
+    chartContainer.appendChild(layout);
+  }
+
+  chartButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      chartButtons.forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+      renderAdminProfitChart(button.dataset.chartPeriod);
+    });
+  });
+
+  renderAdminProfitChart('last_week');
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const cards = document.querySelectorAll('[data-admin-card]');
+  const panels = document.querySelectorAll('.finance-detail-panel');
+
+  function openPanel(targetId) {
+    cards.forEach(card => {
+      card.classList.toggle('active', card.dataset.adminCard === targetId);
+    });
+
+    panels.forEach(panel => {
+      panel.classList.toggle('active', panel.id === targetId);
+    });
+  }
+
+  cards.forEach(card => {
+    card.addEventListener('click', function () {
+      openPanel(card.dataset.adminCard);
+    });
+
+    card.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openPanel(card.dataset.adminCard);
+      }
+    });
+  });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const sourceButtons = document.querySelectorAll('[data-seriy-source]');
+  const sourcePanels = document.querySelectorAll('.seriy-source-panel');
+
+  sourceButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      const source = button.dataset.seriySource;
+
+      sourceButtons.forEach(item => item.classList.toggle('active', item === button));
+      sourcePanels.forEach(panel => {
+        panel.classList.toggle('active', panel.id === 'seriy-source-' + source);
+      });
+    });
+  });
+});
+</script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const recipientSelect = document.getElementById('extraPercentRecipient');
+
+  function updateRecipientLabels() {
+    if (!recipientSelect) {
+      return;
+    }
+
+    const selected = recipientSelect.options[recipientSelect.selectedIndex];
+    const name = selected ? (selected.dataset.name || selected.textContent || 'Серый') : 'Серый';
+    const dative = selected ? (selected.dataset.dative || name) : 'Серому';
+
+    document.querySelectorAll('[data-recipient-label]').forEach(item => {
+      item.textContent = name;
+    });
+
+    document.querySelectorAll('[data-recipient-dative]').forEach(item => {
+      item.textContent = dative;
+    });
+  }
+
+  if (recipientSelect) {
+    recipientSelect.addEventListener('change', updateRecipientLabels);
+    updateRecipientLabels();
+  }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const rows = document.querySelectorAll('[data-seriy-bonus-row]');
+
+  function formatPreviewMoney(value) {
+    const number = Number(value || 0);
+    return new Intl.NumberFormat('ru-RU', {
+      maximumFractionDigits: 0
+    }).format(number) + ' ₽';
+  }
+
+  function updateSeriyPreview() {
+    const totals = { sanya: 0, den: 0 };
+
+    rows.forEach(row => {
+      const source = row.dataset.source;
+      const profit = Math.max(Number(row.dataset.profit || 0), 0);
+      const checkbox = row.querySelector('input[type="checkbox"]');
+      const percentInput = row.querySelector('[data-seriy-percent-input]');
+      const percent = Number(percentInput ? percentInput.value || 0 : 0);
+      const enabled = checkbox && checkbox.checked;
+      const amount = enabled ? profit * percent / 100 : 0;
+
+      if (source in totals) {
+        totals[source] += amount;
+      }
+
+      const add = row.querySelector('[data-seriy-add]');
+      const subtract = row.querySelector('[data-seriy-subtract]');
+
+      if (add) {
+        add.textContent = '+' + formatPreviewMoney(amount);
+      }
+      if (subtract) {
+        subtract.textContent = '-' + formatPreviewMoney(amount);
+      }
+    });
+
+    Object.keys(totals).forEach(source => {
+      document.querySelectorAll('[data-seriy-source-add="' + source + '"]').forEach(item => {
+        item.textContent = '+' + formatPreviewMoney(totals[source]);
+      });
+      document.querySelectorAll('[data-seriy-source-subtract="' + source + '"]').forEach(item => {
+        item.textContent = '-' + formatPreviewMoney(totals[source]);
+      });
+    });
+
+    const totalAdd = document.querySelector('[data-seriy-total-add]');
+    if (totalAdd) {
+      totalAdd.textContent = '+' + formatPreviewMoney(totals.sanya + totals.den);
+    }
+  }
+
+  rows.forEach(row => {
+    row.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', updateSeriyPreview);
+      input.addEventListener('change', updateSeriyPreview);
+    });
+  });
+
+  updateSeriyPreview();
+});
+
+
+  document.querySelectorAll('[data-profit-share-card]').forEach(function(card) {
+    const rowsBody = card.querySelector('[data-profit-share-rows]');
+    const totalElement = card.querySelector('[data-profit-share-total]');
+    const emptyElement = card.querySelector('[data-profit-share-empty]');
+    const addButton = card.querySelector('[data-add-profit-row]');
+    const sourceId = addButton ? addButton.dataset.sourceId : '';
+
+    function updateRole(select) {
+      const row = select.closest('[data-profit-share-row]');
+      const roleCell = row ? row.querySelector('[data-profit-recipient-role]') : null;
+      const option = select.selectedOptions && select.selectedOptions[0];
+      if (roleCell && option) {
+        roleCell.textContent = option.dataset.role || '';
+      }
+    }
+
+    function bindRow(row) {
+      const input = row.querySelector('[data-profit-share-input]');
+      const select = row.querySelector('[data-profit-recipient-select]');
+      const removeButton = row.querySelector('[data-remove-profit-row]');
+
+      if (input) {
+        input.addEventListener('input', updateTotal);
+      }
+
+      if (select) {
+        select.addEventListener('change', function() {
+          updateRole(select);
+        });
+        updateRole(select);
+      }
+
+      if (removeButton) {
+        removeButton.addEventListener('click', function() {
+          row.remove();
+          updateTotal();
+        });
+      }
+    }
+
+    function createRow() {
+      const row = document.createElement('tr');
+      row.setAttribute('data-profit-share-row', '');
+
+      const firstOptions = `{% for option in profit_recipients %}<option value="{{ option.id }}" data-role="{{ option.role }}">{{ option.name }}</option>{% endfor %}`;
+
+      row.innerHTML = `
+        <td>
+          <select class="form-select" name="profit_recipient_${sourceId}[]" data-profit-recipient-select>
+            ${firstOptions}
+          </select>
+        </td>
+        <td data-profit-recipient-role></td>
+        <td>
+          <input
+            class="form-control profit-share-input"
+            type="number"
+            min="0"
+            max="100"
+            step="0.1"
+            name="profit_percent_${sourceId}[]"
+            value="0"
+            data-profit-share-input
+          >
+        </td>
+        <td class="text-end">
+          <button type="button" class="btn btn-outline-danger btn-sm" data-remove-profit-row>Удалить</button>
+        </td>
+      `;
+
+      rowsBody.appendChild(row);
+      bindRow(row);
+      updateTotal();
+    }
+
+    function updateTotal() {
+      let total = 0;
+      const inputs = card.querySelectorAll('[data-profit-share-input]');
+      inputs.forEach(function(input) {
+        total += Number(String(input.value || '0').replace(',', '.')) || 0;
+      });
+
+      const rounded = Math.round(total * 10) / 10;
+      totalElement.textContent = 'Итого: ' + rounded + '%';
+      totalElement.classList.toggle('money-good', Math.abs(rounded - 100) < 0.01);
+      totalElement.classList.toggle('money-bad', Math.abs(rounded - 100) >= 0.01);
+
+      if (emptyElement) {
+        emptyElement.classList.toggle('d-none', inputs.length > 0);
+      }
+    }
+
+    card.querySelectorAll('[data-profit-share-row]').forEach(bindRow);
+
+    if (addButton) {
+      addButton.addEventListener('click', createRow);
+    }
+
+    updateTotal();
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,607 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .user-edit-page {
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    .user-edit-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        padding: 34px;
+        border-radius: 30px;
+        background:
+            radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.12), transparent 28%),
+            radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.10), transparent 30%),
+            rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
+        backdrop-filter: blur(12px);
+        margin-bottom: 24px;
+    }
+
+    .user-edit-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #7c3aed;
+        text-decoration: none;
+        font-weight: 800;
+        margin-bottom: 14px;
+    }
+
+    .user-edit-back:hover {
+        color: #4c1d95;
+    }
+
+    .user-edit-title {
+        color: #0f172a;
+        font-size: 40px;
+        line-height: 1.12;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin: 0 0 10px;
+    }
+
+    .user-edit-text {
+        max-width: 720px;
+        color: #64748b;
+        font-size: 17px;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    .user-edit-badge {
+        flex: 0 0 auto;
+        padding: 14px 18px;
+        border-radius: 22px;
+        background: #111827;
+        color: #ffffff;
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
+    }
+
+    .user-edit-badge-title {
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .user-edit-badge-text {
+        color: #cbd5e1;
+        font-size: 13px;
+    }
+
+    .user-edit-card {
+        overflow: hidden;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.09);
+        backdrop-filter: blur(12px);
+    }
+
+    .user-edit-card-header {
+        padding: 26px 28px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .user-edit-card-title {
+        color: #0f172a;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+    }
+
+    .user-edit-card-text {
+        color: #64748b;
+        font-size: 15px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .user-edit-form {
+        padding: 28px;
+        display: grid;
+        gap: 22px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .form-field.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-field label {
+        display: block;
+        color: #334155;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 7px;
+    }
+
+    .form-field input,
+    .form-field select {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 16px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f172a;
+        padding: 12px 14px;
+        transition: 0.18s ease;
+        outline: none;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus {
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.13);
+    }
+
+    .form-hint {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+        margin-top: 7px;
+    }
+
+    .user-role-note {
+        padding: 18px;
+        border-radius: 22px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .avatar-edit-box {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 22px;
+        align-items: start;
+        padding: 22px;
+        border-radius: 26px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    .avatar-preview-wrap {
+        text-align: center;
+    }
+
+    .avatar-preview {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 30px;
+        border: 5px solid #ffffff;
+        background: #f8fafc;
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.14);
+    }
+
+    .avatar-title {
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0 0 8px;
+    }
+
+    .avatar-text {
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0 0 16px;
+    }
+
+    .upload-area {
+        padding: 20px;
+        border-radius: 22px;
+        border: 2px dashed #a78bfa;
+        background: #faf5ff;
+        transition: 0.18s ease;
+        margin-bottom: 16px;
+    }
+
+    .upload-area:hover {
+        background: #f3e8ff;
+        border-color: #7c3aed;
+    }
+
+    .upload-title {
+        color: #4c1d95;
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .upload-text {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+    }
+
+    .user-edit-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding-top: 6px;
+        border-top: 1px solid #e2e8f0;
+        margin-top: 4px;
+    }
+
+    .ps-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 12px 20px;
+        border-radius: 16px;
+        border: 0;
+        text-decoration: none;
+        font-weight: 800;
+        transition: 0.18s ease;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .ps-btn-main {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #7c3aed, #9333ea);
+        box-shadow: 0 14px 28px rgba(124, 58, 237, 0.26);
+    }
+
+    .ps-btn-main:hover {
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #6d28d9, #7e22ce);
+        box-shadow: 0 18px 34px rgba(124, 58, 237, 0.34);
+    }
+
+    .ps-btn-soft {
+        color: #334155 !important;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+    }
+
+    .ps-btn-soft:hover {
+        color: #111827 !important;
+        border-color: #7c3aed;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .user-edit-hero {
+            flex-direction: column;
+            align-items: flex-start;
+            border-radius: 24px;
+            padding: 24px;
+        }
+
+        .user-edit-title {
+            font-size: 31px;
+        }
+
+        .form-grid,
+        .avatar-edit-box {
+            grid-template-columns: 1fr;
+        }
+
+        .form-field.full {
+            grid-column: auto;
+        }
+
+        .user-edit-actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+        .ps-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="user-edit-page">
+
+    <section class="user-edit-hero">
+        <div>
+            <a href="{{ url_for('admin') }}" class="user-edit-back">
+                ← Назад в админ-панель
+            </a>
+
+            <h1 class="user-edit-title">
+                Редактирование пользователя
+            </h1>
+
+            <p class="user-edit-text">
+                Здесь администратор может изменить имя, email, роль пользователя, пароль
+                и фотографию профиля, если пользователь является репетитором.
+            </p>
+        </div>
+
+        <div class="user-edit-badge">
+            <div class="user-edit-badge-title">
+                ID пользователя
+            </div>
+            <div class="user-edit-badge-text">
+                {{ edited_user.id }}
+            </div>
+        </div>
+    </section>
+
+    <section class="user-edit-card">
+        <div class="user-edit-card-header">
+            <h2 class="user-edit-card-title">
+                Данные аккаунта
+            </h2>
+
+            <p class="user-edit-card-text">
+                Изменения сохранятся после нажатия кнопки “Сохранить изменения”.
+            </p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="user-edit-form">
+                {{ csrf_field() }}
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="name">Имя пользователя</label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value="{{ edited_user.name }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="email">Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ edited_user.email }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="role">Роль</label>
+                    <select id="role" name="role" required>
+                        <option value="parent" {% if edited_user.role == "parent" %}selected{% endif %}>
+                            Родитель
+                        </option>
+
+                        <option value="tutor" {% if edited_user.role == "tutor" %}selected{% endif %}>
+                            Репетитор
+                        </option>
+
+                        <option value="admin" {% if edited_user.role == "admin" %}selected{% endif %}>
+                            Администратор
+                        </option>
+                    </select>
+
+                    <div class="form-hint">
+                        При выборе роли “Репетитор” для пользователя будет создана анкета преподавателя.
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="password">Новый пароль</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Оставьте пустым, если менять не нужно"
+                    >
+
+                    <div class="form-hint">
+                        Если поле оставить пустым, текущий пароль сохранится.
+                    </div>
+                </div>
+            </div>
+
+
+            {% if edited_user.role == "tutor" %}
+                <div class="user-role-note">
+                    <strong>Модерация и доступ репетитора.</strong><br>
+                    Новый репетитор получает статус “На модерации”. Администратор может одобрить анкету
+                    и отдельно открыть нужные функции.
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="tutor_status">Статус анкеты</label>
+                        <select id="tutor_status" name="tutor_status">
+                            <option value="pending" {% if edited_user.tutor_status == "pending" %}selected{% endif %}>
+                                На модерации
+                            </option>
+                            <option value="approved" {% if edited_user.tutor_status == "approved" %}selected{% endif %}>
+                                Одобрена
+                            </option>
+                            <option value="blocked" {% if edited_user.tutor_status == "blocked" %}selected{% endif %}>
+                                Заблокирована
+                            </option>
+                        </select>
+                        <div class="form-hint">
+                            Пока анкета не одобрена, функции репетитора будут закрыты.
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Доступные функции</label>
+
+                        <label style="display:block; font-weight:600; margin-bottom:8px;">
+                            <input type="checkbox" name="can_edit_profile" {% if edited_user.can_edit_profile %}checked{% endif %}>
+                            Редактирование своей анкеты
+                        </label>
+
+                        <label style="display:block; font-weight:600; margin-bottom:8px;">
+                            <input type="checkbox" name="can_receive_bookings" {% if edited_user.can_receive_bookings %}checked{% endif %}>
+                            Просмотр и обработка заявок родителей
+                        </label>
+
+                        <label style="display:block; font-weight:600;">
+                            <input type="checkbox" name="can_be_visible" {% if edited_user.can_be_visible %}checked{% endif %}>
+                            Показывать анкету в каталоге
+                        </label>
+                    </div>
+                </div>
+
+                {% if not edited_user.is_hidden and profile %}
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="admin_owner_id">К какому админу относится</label>
+                            <select id="admin_owner_id" name="admin_owner_id">
+                                <option value="">Не выбран</option>
+                                {% for admin_item in admins %}
+                                    <option value="{{ admin_item.id }}" {% if edited_user.admin_owner_id == admin_item.id %}selected{% endif %}>
+                                        {{ admin_item.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-hint">
+                                Доход админа считается по обычным репетиторам, которые на него работают.
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="profit_percent">Процент репетитора от оплат родителей</label>
+                            <input
+                                type="number"
+                                id="profit_percent"
+                                name="profit_percent"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                value="{{ profile.profit_percent or 0 }}"
+                            >
+                            <div class="form-hint">
+                                Например: 30 означает 30% от оплаченных занятий его родителей.
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            {% if edited_user.role == "tutor" and profile %}
+                <div class="avatar-edit-box">
+                    <div class="avatar-preview-wrap">
+                        <img
+                            src="{{ url_for('static', filename='img/avatars/' ~ profile.avatar) }}"
+                            alt="Фото репетитора"
+                            class="avatar-preview"
+                            id="avatarPreview"
+                        >
+                    </div>
+
+                    <div>
+                        <h2 class="avatar-title">
+                            Фотография репетитора
+                        </h2>
+
+                        <p class="avatar-text">
+                            Администратор может заменить фотографию репетитора. Новое изображение
+                            будет отображаться в каталоге и в профиле преподавателя.
+                        </p>
+
+                        <div class="upload-area">
+                            <div class="upload-title">
+                                Загрузить новую фотографию
+                            </div>
+
+                            <div class="upload-text">
+                                Поддерживаются форматы PNG, JPG, JPEG, WEBP.
+                            </div>
+
+                            <input
+                                type="file"
+                                class="form-control"
+                                id="avatar_file"
+                                name="avatar_file"
+                                accept="image/png,image/jpeg,image/jpg,image/webp"
+                            >
+                        </div>
+
+                        <div class="form-field">
+                            <label for="avatar">Или выбрать стандартный аватар</label>
+
+                            <select id="avatar" name="avatar">
+                                {% for avatar in avatars %}
+                                    <option value="{{ avatar }}" {% if profile.avatar == avatar %}selected{% endif %}>
+                                        {{ avatar }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <div class="form-hint">
+                                Стандартный аватар используется, если новая фотография не выбрана.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="user-role-note">
+                    Фотография профиля доступна только для пользователей с ролью “Репетитор”.
+                    Если выбрать роль “Репетитор” и сохранить изменения, после этого здесь появится блок загрузки фото.
+                </div>
+            {% endif %}
+
+            <div class="user-role-note">
+                Роль определяет доступ к разделам сайта: родитель может записываться на занятия,
+                репетитор редактирует анкету и просматривает заявки, администратор управляет пользователями и заявками.
+            </div>
+
+            <div class="user-edit-actions">
+                <a href="{{ url_for('admin') }}" class="ps-btn ps-btn-soft">
+                    Отмена
+                </a>
+
+                <button type="submit" class="ps-btn ps-btn-main">
+                    Сохранить изменения
+                </button>
+            </div>
+        </form>
+    </section>
+
+</div>
+
+<script>
+    const avatarInput = document.getElementById("avatar_file");
+    const avatarPreview = document.getElementById("avatarPreview");
+
+    if (avatarInput && avatarPreview) {
+        avatarInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                avatarPreview.src = event.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+</script>
+
+{% endblock %}

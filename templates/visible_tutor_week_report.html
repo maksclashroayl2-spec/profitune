@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="mb-4">
+    <a
+      href="{{ url_for('visible_tutor_reports', parent_id=week.parent_id) }}"
+      class="btn btn-outline-secondary rounded-3"
+    >
+      ← Назад к неделям
+    </a>
+  </div>
+
+  <div class="card shadow-sm rounded-4 border-0 mb-4">
+    <div class="card-header bg-white rounded-top-4 p-4">
+      <h1 class="h3 mb-1">📚 Отчёт</h1>
+      <p class="text-muted mb-0">{{ format_week_period(week) }} • Родитель: {{ parent.name }}</p>
+    </div>
+
+    <div class="card-body p-4">
+      {% if week.report and week.report.moderation_status == 'pending' %}
+        <div class="alert alert-warning rounded-3">
+          Есть отчёт от репетитора, ожидающий модерации.
+        </div>
+      {% elif week.report and week.report.moderation_status == 'rejected' %}
+        <div class="alert alert-secondary rounded-3">
+          Последний отчёт репетитора был отклонён.
+          {% if week.report.moderation_comment %}
+            <div class="mt-2"><strong>Комментарий:</strong> {{ week.report.moderation_comment }}</div>
+          {% endif %}
+        </div>
+      {% elif week.report and week.report.moderation_status == 'parent_rejected' %}
+        <div class="alert alert-danger rounded-3">
+          Родитель вернул отчёт на доработку.
+          {% if week.report.parent_reject_reason %}
+            <div class="mt-2"><strong>Причина родителя:</strong> {{ week.report.parent_reject_reason }}</div>
+          {% endif %}
+        </div>
+      {% elif week.report and week.report.moderation_status == 'approved' %}
+        <div class="alert alert-success rounded-3">
+          Последний отчёт репетитора одобрен.
+        </div>
+      {% endif %}
+
+      {% set finance = get_week_finance(week) %}
+      <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="border rounded-4 p-3 bg-light"><div class="text-muted small">Часы</div><div class="fw-bold">{{ format_number(finance.hours) }}</div></div></div>
+        <div class="col-md-3"><div class="border rounded-4 p-3 bg-light"><div class="text-muted small">Родитель платит</div><div class="fw-bold">{{ format_money(finance.parent_total) }}</div></div></div>
+        <div class="col-md-3"><div class="border rounded-4 p-3 bg-light"><div class="text-muted small">Зарплата репетитора</div><div class="fw-bold">{{ format_money(finance.hidden_total) }}</div></div></div>
+        <div class="col-md-3"><div class="border rounded-4 p-3 bg-light"><div class="text-muted small">Прибыль</div><div class="fw-bold">{{ format_money(finance.profit) }}</div></div></div>
+      </div>
+
+      <div class="border rounded-4 p-4 bg-light mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+          <div>
+            <div class="text-muted small">Опубликованный отчёт</div>
+            <h2 class="h5 mb-0">Версия, которую видит родитель</h2>
+          </div>
+
+          {% if week.report and week.report.grade %}
+            <div class="badge bg-primary fs-6 rounded-pill px-3 py-2">
+              Оценка: {{ week.report.grade }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="border rounded-4 p-3 bg-white">
+              <div class="text-muted small">Количество часов</div>
+              <div class="fw-bold">
+                {{ format_number(week.report.hours if week.report else 0) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="border rounded-4 p-3 bg-white">
+              <div class="text-muted small">Статус модерации</div>
+              <div class="fw-bold">
+                {% if week.report %}
+                  {{ week.report.moderation_status or 'draft' }}
+                {% else %}
+                  draft
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% if week.report and week.report.text %}
+          <div class="report-paper protected-report">
+            <div class="report-paper-text">
+              {{ week.report.text }}
+            </div>
+          </div>
+        {% else %}
+          <div class="alert alert-light border mb-0">
+            Опубликованного отчёта пока нет. Его может отправить репетитор через свой раздел, после чего отчёт появится здесь на модерации.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if week.report and week.report.moderation_status == 'pending' %}
+    <div class="card shadow-sm rounded-4 border-0 mb-4">
+      <div class="card-header bg-white rounded-top-4 p-4">
+        <h2 class="h4 mb-1">Отчёт от репетитора на модерации</h2>
+        <p class="text-muted mb-0">
+          Можно одобрить как есть, отклонить или отредактировать и опубликовать.
+        </p>
+      </div>
+
+      <div class="card-body p-4">
+        <form method="post">
+                {{ csrf_field() }}
+          <div class="mb-4">
+            <label class="form-label fw-semibold" for="pendingText">
+              Текст от репетитора
+            </label>
+
+            <textarea
+              id="pendingText"
+              name="pending_text"
+              class="form-control"
+              style="min-height: 320px; resize: vertical;"
+            >{{ week.report.pending_text }}</textarea>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold" for="pendingHours">
+              Часы от репетитора
+            </label>
+            <input
+              id="pendingHours"
+              name="pending_hours"
+              type="number"
+              min="0"
+              step="0.25"
+              class="form-control form-control-lg"
+              value="{{ format_number(week.report.pending_hours) }}"
+              required
+            >
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold" for="pendingGrade">
+              Оценка от репетитора
+            </label>
+
+            <select id="pendingGrade" name="pending_grade" class="form-select form-select-lg">
+              <option value="" {% if not week.report.pending_grade %}selected{% endif %}>Оценка не выбрана</option>
+              {% for value in ['2', '3', '4', '5'] %}
+                <option value="{{ value }}" {% if week.report.pending_grade|string == value %}selected{% endif %}>{{ value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold" for="moderationComment">
+              Комментарий при отклонении
+            </label>
+            <textarea
+              id="moderationComment"
+              name="moderation_comment"
+              class="form-control"
+              rows="3"
+              placeholder="Например: исправить формулировку отчёта"
+            ></textarea>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <button name="action" value="approve_pending" class="btn btn-success btn-lg rounded-3">
+              Одобрить
+            </button>
+
+            <button name="action" value="publish_pending_edit" class="btn btn-primary btn-lg rounded-3">
+              Сохранить изменения и одобрить
+            </button>
+
+            <button name="action" value="reject_pending" class="btn btn-outline-danger btn-lg rounded-3">
+              Отклонить
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if week.report and week.report.moderation_status == 'parent_rejected' %}
+    <div class="card shadow-sm rounded-4 border-0 mb-4">
+      <div class="card-header bg-white rounded-top-4 p-4">
+        <h2 class="h4 mb-1">Доработка отчёта после отказа родителя</h2>
+        <p class="text-muted mb-0">Исправьте текст, часы или оценку и отправьте отчёт родителю повторно.</p>
+      </div>
+
+      <div class="card-body p-4">
+        <div class="alert alert-warning rounded-3">
+          <strong>Причина родителя:</strong> {{ week.report.parent_reject_reason or 'Причина не указана' }}
+        </div>
+
+        <form method="post">
+                {{ csrf_field() }}
+          <div class="mb-4">
+            <label class="form-label fw-semibold" for="revisionText">Текст отчёта</label>
+            <textarea
+              id="revisionText"
+              name="report_text"
+              class="form-control"
+              style="min-height: 320px; resize: vertical;"
+              required
+            >{{ week.report.text }}</textarea>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold" for="revisionHours">Количество часов</label>
+            <input
+              id="revisionHours"
+              name="hours"
+              type="number"
+              min="0"
+              step="0.25"
+              class="form-control form-control-lg"
+              value="{{ format_number(week.report.hours if week.report else 0) }}"
+              required
+            >
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold" for="revisionGrade">Оценка</label>
+            <select id="revisionGrade" name="grade" class="form-select form-select-lg">
+              <option value="" {% if not week.report.grade %}selected{% endif %}>Оценка не выбрана</option>
+              {% for value in ['2', '3', '4', '5'] %}
+                <option value="{{ value }}" {% if week.report.grade|string == value %}selected{% endif %}>{{ value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <button name="action" value="publish_parent_revision" class="btn btn-primary btn-lg rounded-3">
+            Отправить исправленный отчёт родителю
+          </button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="card shadow-sm rounded-4 border-0">
+    <div class="card-body p-4">
+      {% if report_is_published(week) %}
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+          <div>
+            <label class="form-label fw-semibold mb-1">Чек от родителя</label>
+            <div>
+              <span class="badge {{ payment_status_badge_for_week(week) }}">
+                {{ payment_status_label_for_week(week) }}
+              </span>
+            </div>
+          </div>
+
+          <form method="post" class="d-flex flex-wrap gap-2 mb-0">
+                {{ csrf_field() }}
+            {% if week.payment_status == 'pending' %}
+              <button name="action" value="confirm_payment" class="btn btn-success rounded-3">
+                Подтвердить оплату
+              </button>
+              <button name="action" value="reject_payment" class="btn btn-outline-danger rounded-3">
+                Отклонить чек
+              </button>
+            {% endif %}
+
+            {% if not week.receipt_not_required %}
+              <button name="action" value="confirm_payment_without_receipt" class="btn btn-outline-success rounded-3">
+                Чек не требуется, оплату учли
+              </button>
+            {% else %}
+              <button name="action" value="cancel_payment_without_receipt" class="btn btn-outline-secondary rounded-3">
+                Отменить отметку без чека
+              </button>
+            {% endif %}
+          </form>
+        </div>
+
+        {% if week.receipt_not_required %}
+          <div class="alert alert-info border mb-0">
+            Чек по этой неделе не требуется: оплата учтена вручную по договорённости с родителем.
+          </div>
+        {% elif week.report and week.report.attachments %}
+          <div class="list-group">
+            {% for file in week.report.attachments %}
+              <a
+                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                href="{{ url_for('download_report_attachment', filename=file.filename) }}"
+                target="_blank"
+              >
+                <span>{{ file.original_filename }}</span>
+                <span class="text-muted small">
+                  {{ file.uploaded_at.strftime('%d.%m.%Y %H:%M') if file.uploaded_at else '' }}
+                </span>
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-light border mb-0">
+            Родитель пока не загрузил чек.
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="alert alert-info rounded-4 mb-0">
+          Статус оплаты и загрузка чека появятся после того, как отчёт пройдёт модерацию и будет отправлен родителю.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

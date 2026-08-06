@@ -1,0 +1,894 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .calc-page {
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+
+    .calc-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 34px;
+        padding: 34px;
+        margin-bottom: 24px;
+        background:
+            radial-gradient(circle at 10% 18%, rgba(124, 58, 237, 0.18), transparent 30%),
+            radial-gradient(circle at 90% 82%, rgba(37, 99, 235, 0.14), transparent 32%),
+            rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.10);
+        backdrop-filter: blur(14px);
+    }
+
+    .calc-kicker {
+        display: inline-flex;
+        padding: 8px 13px;
+        border-radius: 999px;
+        background: rgba(124, 58, 237, 0.11);
+        color: #5b21b6;
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-bottom: 12px;
+    }
+
+    .calc-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(32px, 4vw, 46px);
+        font-weight: 950;
+        letter-spacing: -0.04em;
+    }
+
+    .calc-subtitle {
+        max-width: 820px;
+        margin: 12px 0 0;
+        color: #64748b;
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    .calc-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .calc-stat {
+        border-radius: 28px;
+        padding: 22px;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 18px 46px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(12px);
+    }
+
+    .calc-stat-label {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-bottom: 8px;
+    }
+
+    .calc-stat-value {
+        color: #0f172a;
+        font-size: 28px;
+        font-weight: 950;
+        line-height: 1.1;
+    }
+
+    .calc-stat.good .calc-stat-value { color: #15803d; }
+    .calc-stat.warn .calc-stat-value { color: #b45309; }
+    .calc-stat.bad .calc-stat-value { color: #b91c1c; }
+    .calc-stat.accent .calc-stat-value { color: #2563eb; }
+
+    .calc-panel {
+        border-radius: 30px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.97);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 22px 58px rgba(15, 23, 42, 0.09);
+        margin-bottom: 24px;
+    }
+
+    .calc-panel-header {
+        padding: 22px 26px;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+        background: linear-gradient(135deg, rgba(248,250,252,.98), rgba(239,246,255,.86));
+    }
+
+    .calc-panel-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 950;
+    }
+
+    .calc-panel-text {
+        margin: 6px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .calc-table-wrap {
+        overflow-x: auto;
+    }
+
+    .calc-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        min-width: 880px;
+    }
+
+    .calc-table th {
+        padding: 14px 16px;
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        white-space: nowrap;
+    }
+
+    .calc-table td {
+        padding: 16px;
+        border-top: 1px solid #e2e8f0;
+        color: #334155;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .calc-main-value {
+        color: #0f172a;
+        font-weight: 900;
+    }
+
+    .calc-muted {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .calc-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 11px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 900;
+    }
+
+    .calc-badge.paid {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .calc-badge.pending {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    .calc-badge.unpaid {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .calc-empty {
+        padding: 34px;
+        text-align: center;
+        color: #64748b;
+    }
+
+
+    .calc-chart-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin: -4px 0 22px;
+    }
+
+    .calc-chart-btn {
+        border: 0;
+        border-radius: 18px;
+        padding: 13px 22px;
+        background: linear-gradient(135deg, #7c3aed, #2563eb);
+        color: #ffffff;
+        font-weight: 900;
+        box-shadow: 0 16px 34px rgba(37, 99, 235, 0.24);
+    }
+
+    .calc-chart-btn:hover {
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 20px 42px rgba(37, 99, 235, 0.32);
+    }
+
+    .calc-chart-modal .modal-content {
+        border: 0;
+        border-radius: 30px;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 10% 18%, rgba(124, 58, 237, 0.10), transparent 30%),
+            radial-gradient(circle at 92% 82%, rgba(37, 99, 235, 0.10), transparent 32%),
+            rgba(255, 255, 255, 0.98);
+        box-shadow: 0 30px 90px rgba(15, 23, 42, 0.22);
+    }
+
+    .calc-chart-modal .modal-header {
+        border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+        padding: 24px 28px;
+    }
+
+    .calc-chart-modal .modal-title {
+        color: #0f172a;
+        font-size: 24px;
+        font-weight: 950;
+        letter-spacing: -0.03em;
+    }
+
+    .calc-chart-modal .modal-body {
+        padding: 24px 28px 30px;
+    }
+
+    .calc-chart-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .calc-chart-tab {
+        border-radius: 999px;
+        padding: 9px 15px;
+        border: 1px solid rgba(124, 58, 237, 0.28);
+        background: rgba(255, 255, 255, 0.84);
+        color: #4c1d95;
+        font-weight: 900;
+    }
+
+    .calc-chart-tab.active {
+        background: linear-gradient(135deg, #7c3aed, #2563eb);
+        color: #ffffff;
+        border-color: transparent;
+        box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
+    }
+
+    .calc-chart-wrap {
+        height: 430px;
+        padding: 18px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.95);
+    }
+
+    .calc-chart-note {
+        margin-top: 12px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+
+    .calc-admin-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .calc-admin-card {
+        border-radius: 30px;
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.97);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 22px 58px rgba(15, 23, 42, 0.09);
+        backdrop-filter: blur(12px);
+    }
+
+    .calc-admin-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-bottom: 16px;
+        margin-bottom: 14px;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+    }
+
+    .calc-admin-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(37, 99, 235, 0.10);
+        color: #2563eb;
+        font-size: 22px;
+        font-weight: 950;
+    }
+
+    .calc-admin-name {
+        color: #0f172a;
+        font-size: 25px;
+        font-weight: 950;
+        letter-spacing: -0.03em;
+    }
+
+    .calc-admin-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.78);
+        color: #334155;
+        font-size: 15px;
+    }
+
+    .calc-admin-row:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .calc-admin-label {
+        color: #64748b;
+        font-weight: 800;
+    }
+
+    .calc-admin-value {
+        color: #0f172a;
+        font-weight: 950;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .calc-admin-value.good {
+        color: #15803d;
+    }
+
+    .calc-admin-value.warn {
+        color: #b45309;
+    }
+
+
+
+    .calc-hidden-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin: 0 0 24px;
+    }
+
+    .calc-hidden-card {
+        border-radius: 28px;
+        padding: 22px;
+        background: rgba(255, 255, 255, 0.97);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        box-shadow: 0 18px 46px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(12px);
+    }
+
+    .calc-hidden-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 14px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    }
+
+    .calc-fine-actions {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(226, 232, 240, 0.9);
+    }
+
+    .calc-fine-btn {
+        width: 100%;
+        border: 1px solid rgba(220, 38, 38, 0.35);
+        border-radius: 14px;
+        padding: 9px 14px;
+        background: rgba(254, 242, 242, 0.9);
+        color: #b91c1c;
+        font-weight: 800;
+        font-size: 14px;
+        transition: background 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .calc-fine-btn:hover {
+        background: rgba(254, 226, 226, 0.95);
+        box-shadow: 0 8px 20px rgba(185, 28, 28, 0.12);
+    }
+
+    .calc-hidden-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(124, 58, 237, 0.10);
+        color: #5b21b6;
+        font-size: 20px;
+        font-weight: 950;
+    }
+
+    .calc-hidden-name {
+        color: #0f172a;
+        font-size: 22px;
+        font-weight: 950;
+        letter-spacing: -0.03em;
+    }
+
+    .calc-hidden-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 11px 0;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+    }
+
+    .calc-hidden-row:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .calc-hidden-label {
+        color: #64748b;
+        font-weight: 900;
+    }
+
+    .calc-hidden-value {
+        color: #0f172a;
+        font-weight: 950;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .calc-hidden-value.warn {
+        color: #b45309;
+    }
+
+    @media (max-width: 992px) {
+        .calc-grid,
+        .calc-admin-grid,
+        .calc-hidden-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 576px) {
+        .calc-grid,
+        .calc-admin-grid,
+        .calc-hidden-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .calc-hero {
+            padding: 24px;
+            border-radius: 26px;
+        }
+    }
+</style>
+
+<div class="calc-page">
+    <section class="calc-hero">
+        <div class="calc-kicker">Финансы</div>
+        <h1 class="calc-title">Подсчёт доходов и выплат</h1>
+        <p class="calc-subtitle">
+            Здесь собраны часы, суммы родителей, выплаты репетиторам и чистая прибыль.
+            Учитываются только отчёты, где указано количество часов.
+        </p>
+
+<div class="calc-filter-card">
+<form method="get" class="calc-filter-form">
+<div class="calc-filter-group">
+<label>С даты</label>
+<input type="date" name="date_from" value="{{ date_from or '' }}" class="form-control">
+</div>
+<div class="calc-filter-group">
+<label>По дату</label>
+<input type="date" name="date_to" value="{{ date_to or '' }}" class="form-control">
+</div>
+<button type="submit" class="btn btn-primary">Применить</button>
+</form>
+</div>
+
+    </section>
+
+    <section class="calc-grid">
+        <div class="calc-stat accent">
+            <div class="calc-stat-label">Часов всего</div>
+            <div class="calc-stat-value">{{ format_number(total_hours) }} ч</div>
+        </div>
+
+        <div class="calc-stat good">
+            <div class="calc-stat-label">Доход от родителей</div>
+            <div class="calc-stat-value">{{ format_money(total_parent_sum) }}</div>
+        </div>
+
+        <div class="calc-stat bad">
+            <div class="calc-stat-label">Налог {{ format_number(parent_tax_rate) }}%</div>
+            <div class="calc-stat-value">−{{ format_money(parent_tax_amount) }}</div>
+            <div class="calc-muted">Вычитается со всей суммы от родителей первым шагом</div>
+        </div>
+
+        <div class="calc-stat warn">
+            <div class="calc-stat-label">К выплате скрытым</div>
+            <div class="calc-stat-value">{{ format_money(total_hidden_sum) }}</div>
+            <div class="calc-muted">Скрытые получают эту сумму полностью</div>
+        </div>
+
+        <div class="calc-stat bad">
+            <div class="calc-stat-label">Удержание {{ format_number(accountant_fee_rate) }}% + {{ format_number(extra_deduction_rate) }}% от зарплаты скрытых</div>
+            <div class="calc-stat-value">−{{ format_money(my_deductions.accountant_part_1 + my_deductions.extra_part_1) }}</div>
+            <div class="calc-muted">Бухгалтеру: {{ format_money(my_deductions.accountant_part_1) }} · доп. удержание: {{ format_money(my_deductions.extra_part_1) }}</div>
+        </div>
+
+        <div class="calc-stat bad">
+            <div class="calc-stat-label">Удержание {{ format_number(accountant_fee_rate) }}% + {{ format_number(extra_deduction_rate) }}% от моей доли</div>
+            <div class="calc-stat-value">−{{ format_money(my_deductions.accountant_part_2 + my_deductions.extra_part_2) }}</div>
+            <div class="calc-muted">Бухгалтеру: {{ format_money(my_deductions.accountant_part_2) }} · доп. удержание: {{ format_money(my_deductions.extra_part_2) }}</div>
+        </div>
+
+        <div class="calc-stat {% if total_profit >= 0 %}good{% else %}bad{% endif %}">
+            <div class="calc-stat-label">Моя доля</div>
+            <div class="calc-stat-value">{{ format_money(total_profit) }}</div>
+            {% if my_profit_share_details %}
+                <div class="calc-muted">{{ my_profit_share_details[:2]|join('; ') }}{% if my_profit_share_details|length > 2 %}; ещё {{ my_profit_share_details|length - 2 }}{% endif %}</div>
+            {% else %}
+                <div class="calc-muted">Нет доли в распределении</div>
+            {% endif %}
+        </div>
+    </section>
+
+
+    {% if tutor_totals %}
+        <section class="calc-hidden-grid">
+            {% for item in tutor_totals %}
+                <article class="calc-hidden-card">
+                    <div class="calc-hidden-head">
+                        <div class="calc-hidden-icon">👤</div>
+                        <div class="calc-hidden-name">{{ item.tutor.name }}</div>
+                    </div>
+                    <div class="calc-hidden-row">
+                        <span class="calc-hidden-label">Часы</span>
+                        <span class="calc-hidden-value">{{ format_number(item.hours) }} ч</span>
+                    </div>
+                    <div class="calc-hidden-row">
+                        <span class="calc-hidden-label">Зарплата за часы</span>
+                        <span class="calc-hidden-value warn">{{ format_money(item.hidden_sum) }}</span>
+                    </div>
+                    {% if item.fine_sum is defined and item.fine_sum > 0 %}
+                        <div class="calc-hidden-row">
+                            <span class="calc-hidden-label">Штраф</span>
+                            <span class="calc-hidden-value bad">−{{ format_money(item.fine_sum) }}</span>
+                        </div>
+                    {% endif %}
+                    {% if item.profit_share_percent is defined and item.profit_share_percent > 0 %}
+                        <div class="calc-hidden-row">
+                            <span class="calc-hidden-label">Доля прибыли {{ format_number(item.profit_share_percent) }}%</span>
+                            <span class="calc-hidden-value good">{{ format_money(item.profit_share_sum) }}</span>
+                        </div>
+                        <div class="calc-hidden-row calc-hidden-total">
+                            <span class="calc-hidden-label">Итого</span>
+                            <span class="calc-hidden-value good">{{ format_money(item.total_sum) }}</span>
+                        </div>
+                    {% else %}
+                        <div class="calc-hidden-row">
+                            <span class="calc-hidden-label">К выплате</span>
+                            <span class="calc-hidden-value warn">{{ format_money(item.payout_sum if item.payout_sum is defined else item.hidden_sum) }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="calc-fine-actions">
+                        <button
+                            type="button"
+                            class="calc-fine-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#fineModal"
+                            data-hidden-id="{{ item.tutor.id }}"
+                            data-hidden-name="{{ item.tutor.name }}"
+                            data-fine-amount="{{ item.fine_sum if item.fine_sum is defined else 0 }}"
+                        >
+                            {% if item.fine_sum is defined and item.fine_sum > 0 %}Изменить штраф{% else %}Назначить штраф{% endif %}
+                        </button>
+                    </div>
+                </article>
+            {% endfor %}
+        </section>
+
+        <div class="modal fade" id="fineModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form method="post" action="{{ url_for('set_hidden_tutor_fine') }}">
+                {{ csrf_field() }}
+                        <div class="modal-header">
+                            <h5 class="modal-title">Штраф: <span id="fineModalTutorName"></span></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="hidden_tutor_id" id="fineModalTutorId" value="">
+                            <input type="hidden" name="period_from" value="{{ date_from }}">
+                            <input type="hidden" name="period_to" value="{{ date_to }}">
+                            <div class="mb-3">
+                                <label class="form-label">Сумма штрафа за неделю, ₽</label>
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    name="amount"
+                                    id="fineModalAmount"
+                                    min="0"
+                                    step="0.01"
+                                    inputmode="decimal"
+                                    required
+                                >
+                                <div class="form-text">
+                                    Период: {{ date_from or "—" }} — {{ date_to or "—" }}.
+                                    Сумма 0 снимает штраф.
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Причина (необязательно)</label>
+                                <input type="text" class="form-control" name="comment" maxlength="255" placeholder="Например: опоздание на занятие">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <button type="submit" class="btn btn-danger">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fineModal = document.getElementById('fineModal');
+            if (!fineModal) return;
+
+            fineModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                if (!button) return;
+
+                document.getElementById('fineModalTutorId').value = button.dataset.hiddenId || '';
+                document.getElementById('fineModalTutorName').textContent = button.dataset.hiddenName || '';
+
+                const amountInput = document.getElementById('fineModalAmount');
+                const current = parseFloat(button.dataset.fineAmount || '0');
+                amountInput.value = current > 0 ? current : '';
+            });
+        });
+        </script>
+    {% endif %}
+
+    <div class="calc-chart-actions">
+        <button
+            type="button"
+            class="calc-chart-btn"
+            data-bs-toggle="modal"
+            data-bs-target="#financeChartModal"
+        >
+            График
+        </button>
+    </div>
+
+    <section class="calc-grid">
+        <div class="calc-stat good">
+            <div class="calc-stat-label">Оплачено</div>
+            <div class="calc-stat-value">{{ format_money(paid_sum) }}</div>
+        </div>
+
+        <div class="calc-stat warn">
+            <div class="calc-stat-label">На проверке</div>
+            <div class="calc-stat-value">{{ format_money(pending_sum) }}</div>
+        </div>
+
+        <div class="calc-stat bad">
+            <div class="calc-stat-label">Не оплачено</div>
+            <div class="calc-stat-value">{{ format_money(unpaid_sum) }}</div>
+        </div>
+
+        <div class="calc-stat accent">
+            <div class="calc-stat-label">Записей в подсчёте</div>
+            <div class="calc-stat-value">{{ rows|length }}</div>
+        </div>
+    </section>
+
+</div>
+
+<div class="modal fade calc-chart-modal" id="financeChartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title">График доходов и выплат</h5>
+                    <div class="calc-muted">
+                        Учебный год: {{ chart_start.strftime("%d.%m.%Y") }} — {{ chart_end.strftime("%d.%m.%Y") }}
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div class="calc-chart-tabs">
+                    <button type="button" class="calc-chart-tab active" data-chart-mode="weeks">
+                        По неделям
+                    </button>
+                    <button type="button" class="calc-chart-tab" data-chart-mode="months">
+                        По месяцам
+                    </button>
+                </div>
+
+                <div class="calc-chart-wrap">
+                    <canvas id="financeProgressChart"></canvas>
+                </div>
+
+                <p class="calc-chart-note">
+                    На графике показаны те же параметры, что и в верхних карточках:
+                    часы, доход от родителей, выплаты репетиторам и ваша доля.
+                    Период графика считается с сентября по август следующего года.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const financeChartData = {{ chart_data|tojson }};
+    let financeChart = null;
+
+    function buildFinanceDatasets(mode) {
+        const data = financeChartData[mode] || financeChartData.weeks;
+
+        return {
+            labels: data.labels,
+            datasets: [
+                {
+                    label: "Часы",
+                    data: data.hours,
+                    yAxisID: "hoursAxis",
+                    tension: 0.32,
+                    borderWidth: 3,
+                    pointRadius: 4
+                },
+                {
+                    label: "Доход от родителей",
+                    data: data.parent_income,
+                    yAxisID: "moneyAxis",
+                    tension: 0.32,
+                    borderWidth: 3,
+                    pointRadius: 4
+                },
+                {
+                    label: "К выплате репетиторам",
+                    data: data.hidden_payout,
+                    yAxisID: "moneyAxis",
+                    tension: 0.32,
+                    borderWidth: 3,
+                    pointRadius: 4
+                },
+                {
+                    label: "Моя доля",
+                    data: data.my_share,
+                    yAxisID: "moneyAxis",
+                    tension: 0.32,
+                    borderWidth: 3,
+                    pointRadius: 4
+                }
+            ]
+        };
+    }
+
+    function renderFinanceChart(mode) {
+        const canvas = document.getElementById("financeProgressChart");
+
+        if (!canvas || typeof Chart === "undefined") {
+            return;
+        }
+
+        if (financeChart) {
+            financeChart.destroy();
+        }
+
+        financeChart = new Chart(canvas, {
+            type: "line",
+            data: buildFinanceDatasets(mode),
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: "index",
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 10,
+                            font: {
+                                weight: "bold"
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label || "";
+                                const value = Number(context.raw || 0);
+
+                                if (context.dataset.yAxisID === "hoursAxis") {
+                                    return `${label}: ${value.toLocaleString("ru-RU")} ч`;
+                                }
+
+                                return `${label}: ${value.toLocaleString("ru-RU")} ₽`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    moneyAxis: {
+                        type: "linear",
+                        position: "left",
+                        ticks: {
+                            callback: function(value) {
+                                return Number(value).toLocaleString("ru-RU") + " ₽";
+                            }
+                        },
+                        grid: {
+                            color: "rgba(148, 163, 184, 0.20)"
+                        }
+                    },
+                    hoursAxis: {
+                        type: "linear",
+                        position: "right",
+                        ticks: {
+                            callback: function(value) {
+                                return Number(value).toLocaleString("ru-RU") + " ч";
+                            }
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0
+                        },
+                        grid: {
+                            color: "rgba(148, 163, 184, 0.12)"
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const modal = document.getElementById("financeChartModal");
+        const buttons = document.querySelectorAll("[data-chart-mode]");
+
+        if (modal) {
+            modal.addEventListener("shown.bs.modal", function() {
+                renderFinanceChart("weeks");
+            });
+        }
+
+        buttons.forEach(function(button) {
+            button.addEventListener("click", function() {
+                buttons.forEach((item) => item.classList.remove("active"));
+                button.classList.add("active");
+                renderFinanceChart(button.dataset.chartMode);
+            });
+        });
+    });
+</script>
+
+{% endblock %}
